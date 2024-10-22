@@ -4,6 +4,7 @@ const user = useSupabaseUser();
 
 <template>
   <div v-if="user">
+    <plans/>
   </div>
   <div v-else>
     <LoginOAuth />
