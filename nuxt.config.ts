@@ -1,6 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: false },
   modules: ['@nuxtjs/supabase', '@nuxt/ui', '@nuxt/eslint'],
   components: [
     'components/',
@@ -9,12 +8,20 @@ export default defineNuxtConfig({
       extensions: ['js', 'ts', 'vue'], // File extensions
     },
   ],
+  devtools: { enabled: false },
+  css: [
+    'vue-arrange/dist/vue-arrange.css',
+  ],
+  compatibilityDate: '2024-10-18',
+  eslint: {
+    config: {
+      stylistic: true,
+    },
+  },
   supabase: {
     redirectOptions: {
       login: '/',
       callback: '/confirm',
     },
   },
-
-  compatibilityDate: '2024-10-18',
 })

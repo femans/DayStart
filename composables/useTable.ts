@@ -1,5 +1,6 @@
+import type { RealtimeChannel, RealtimePostgresDeletePayload, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/realtime-js'
 import type { Database, TablesInsert, TablesUpdate } from '~~/types/database.types'
-import type { RealtimeChannel, RealtimePostgresDeletePayload, RealtimePostgresInsertPayload, RealtimePostgresUpdatePayload } from '@supabase/realtime-js';
+
 export type TableNames = keyof Database['public']['Tables']
 export type TableRow<T extends TableNames> = Database['public']['Tables'][T]['Row']
 
@@ -13,34 +14,35 @@ export type TableRow<T extends TableNames> = Database['public']['Tables'][T]['Ro
  * @param options.verbose Whether to log real-time changes to the console. Default is `false`.
  */
 export function useTable<T extends TableNames>(
-    table: T, 
-    options?: { 
-      autoFetch?: boolean, 
-      autoSubscribe?: boolean, 
-      prefix?: string,
-      verbose?: boolean,
-    }
-  ) {
+  table: T,
+  options?: {
+    autoFetch?: boolean
+    autoSubscribe?: boolean
+    prefix?: string
+    verbose?: boolean
+  },
+) {
   type idType = TableRow<T>['id']
 
-  const supabase = useSupabaseClient<Database>();
-  const rows = useState<TableRow<T>[]>((options?.prefix || "supabase-") + table, () => []);
-  const fetch = useState<boolean>((options?.prefix || "supabase-") + table + '-fetched', () => false);
-  const subscription = useState<RealtimeChannel | null>((options?.prefix || "supabase-") + table + '-subscription', () => null);
+  const supabase = useSupabaseClient<Database>()
+  const rows = useState<TableRow<T>[]>((options?.prefix || 'supabase-') + table, () => [])
+  const fetch = useState<boolean>((options?.prefix || 'supabase-') + table + '-fetched', () => false)
+  const subscription = useState<RealtimeChannel | null>((options?.prefix || 'supabase-') + table + '-subscription', () => null)
 
   // Fetch initial data from the database
   const fetchData = async () => {
-    const fetched = fetch.value;
-    fetch.value = true;
-    if(options?.verbose) console.log("fetching data")
+    const fetched = fetch.value
+    fetch.value = true
+    if (options?.verbose) console.log('fetching data')
     const { data, error } = await supabase.from(table).select('*').returns<TableRow<T>[]>()
-    if(error) {
-      // reset to previous state; usually this method gets called only at the start of the load and should be called only once. 
-      fetch.value = fetched;
-      throw error;
+    if (error) {
+      // reset to previous state; usually this method gets called only at the start of the load and should be called only once.
+      fetch.value = fetched
+
+      throw error
     }
-    if (data) rows.value = data;
-    console.log(rows.value.length + " rows fetched")
+    if (data) rows.value = data
+    if (options?.verbose) console.log(rows.value.length + ' rows fetched')
   }
 
   // Add a new row to the table
@@ -48,7 +50,7 @@ export function useTable<T extends TableNames>(
     const { data, error } = await supabase
       .from(table as TableNames)
       .insert(newRow).single()
-    if(error) throw error;
+    if (error) throw error
     if (data) rows.value.push(data)
   }
 
@@ -59,7 +61,7 @@ export function useTable<T extends TableNames>(
       .update(updatedData)
       .eq('id', id)
       .single()
-    if(error) throw error;
+    if (error) throw error
     if (data) {
       const index = rows.value.findIndex(row => row.id === id)
       if (index !== -1) rows.value[index] = data
@@ -72,24 +74,24 @@ export function useTable<T extends TableNames>(
       .from(table)
       .delete()
       .eq('id', id)
-    if(error) throw error;
+    if (error) throw error
     rows.value = rows.value.filter(row => row.id !== id)
   }
 
   // Real-time subscription
   const subscribe = () => {
-    if(subscription.value) subscription.value.unsubscribe();
+    if (subscription.value) subscription.value.unsubscribe()
     subscription.value = supabase
       .channel(table)
-      .on('postgres_changes', 
+      .on('postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
         },
         (payload: RealtimePostgresInsertPayload<TableRow<T>>) => {
-          if(options?.verbose) console.log('INSERT', payload);
-          rows.value.push(payload.new);
-        }
+          if (options?.verbose) console.log('INSERT', payload)
+          rows.value.push(payload.new)
+        },
       )
       .on('postgres_changes',
         {
@@ -97,10 +99,10 @@ export function useTable<T extends TableNames>(
           schema: 'public',
         },
         (payload: RealtimePostgresUpdatePayload<TableRow<T>>) => {
-          if(options?.verbose) console.log('UPDATE', payload);
+          if (options?.verbose) console.log('UPDATE', payload)
           const index = rows.value.findIndex(row => row.id === payload.old.id)
           if (index !== -1) rows.value[index] = payload.new
-        }
+        },
       )
       .on('postgres_changes',
         {
@@ -108,17 +110,17 @@ export function useTable<T extends TableNames>(
           schema: 'public',
         },
         (payload: RealtimePostgresDeletePayload<TableRow<T>>) => {
-          if(options?.verbose) console.log('DELETE', payload);
+          if (options?.verbose) console.log('DELETE', payload)
           rows.value = rows.value.filter(row => row.id !== payload.old.id)
-        }
+        },
       )
       .subscribe()
     if (options?.verbose) console.log(`subscribed to real-time changes on table ${table}`)
   }
 
   // Initialize data and subscribe to real-time changes
-  if(options?.autoFetch !== false && !fetch.value) fetchData();
-  if(options?.autoSubscribe !== false && subscription.value === null) subscribe()
+  if (options?.autoFetch !== false && !fetch.value) fetchData()
+  if (options?.autoSubscribe !== false && subscription.value === null) subscribe()
 
   // Return methods for external use
   return {

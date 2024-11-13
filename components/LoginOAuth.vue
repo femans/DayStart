@@ -8,12 +8,26 @@ const { auth } = useSupabaseClient()
       Sign in to your account
     </h2>
     <UButton
-class="mt-3" icon="i-mdi-github" block label="Github" color="primary" variant="solid"
-      @click="auth.signInWithOAuth({ provider: 'github', options: {
-        redirectTo: '/plans',
-      } })" />
+      class="mt-3"
+      icon="i-mdi-github"
+      block
+      label="Github"
+      color="primary"
+      variant="solid"
+      @click="auth.signInWithOAuth({ provider: 'github',
+                                     options: {
+                                       redirectTo: '/plans',
+                                     } })"
+    />
     <UButton
-class="mt-3" icon="i-mdi-google" block label="Google" color="gray" variant="solid" disabled
-      @click="auth.signInWithOAuth({ provider: 'google' })" />
+      class="mt-3"
+      icon="i-mdi-google"
+      block
+      label="Google"
+      color="gray"
+      variant="solid"
+      disabled
+      @click="auth.signInWithOAuth({ provider: 'google' })"
+    />
   </div>
 </template>
