@@ -8,7 +8,7 @@ export default defineNuxtConfig({
       extensions: ['js', 'ts', 'vue'], // File extensions
     },
   ],
-  devtools: { enabled: false },
+  devtools: { enabled: true },
   css: [
     'vue-arrange/dist/vue-arrange.css',
   ],

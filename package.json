@@ -13,21 +13,24 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
+    "@nuxtjs/supabase": "^1.4.3",
     "@supabase/realtime-js": "^2.10.7",
-    "nuxt": "^3.13.2",
+    "nuxt": "^3.14.1592",
     "vue": "latest",
-    "vue-arrange": "^1.0.9",
+    "vue-arrange": "^1.2.5",
     "vue-router": "latest",
     "yup": "^1.4.0"
   },
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
   "devDependencies": {
-    "@nuxt/eslint": "^0.6.0",
-    "@nuxt/ui": "^2.18.7",
-    "@nuxtjs/supabase": "^1.4.1",
-    "eslint": "^9.13.0",
+    "@nuxt/eslint": "^0.6.2",
+    "@nuxt/ui": "^2.19.2",
+    "eslint": "^9.15.0",
     "prettier": "^3.3.3",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
+  },
+  "resolutions": {
+    "cross-spawn": "^7.0.5"
   },
   "module": "esnext"
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { DropZone } from 'vue-arrange'
 import type { TablesInsert } from '~~/types/database.types'
 
-const plans = useTable('plans', { verbose: true, autoFetch: false, autoSubscribe: false })
+const plans = useTable('plans', { verbose: true, autoFetch: true, autoSubscribe: true })
 
 const user = useSupabaseUser()
 
@@ -46,7 +47,26 @@ async function addPlan() {
       </UButton>
     </form>
     <ClientOnly>
-      <PlanOverview :plan="null" />
+      <UCard
+        class="px-6 py-2 overflow-hidden w-full"
+      >
+        <table class="w-full">
+          <PlanOverview :plan="null" />
+        </table>
+      </UCard>
+      <DropZone
+        v-slot="{ isHovering }"
+        identifier="trashbin"
+        group="plansGroup"
+        class="inline-block"
+      >
+        <div
+          class="flex h-20 w-20 items-center justify-center transition-all select-none"
+          :class="isHovering ? 'text-5xl' : 'text-4xl'"
+        >
+          🗑
+        </div>
+      </DropZone>
     </ClientOnly>
   </div>
 </template>

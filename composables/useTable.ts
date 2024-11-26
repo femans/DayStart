@@ -4,6 +4,10 @@ import type { Database, TablesInsert, TablesUpdate } from '~~/types/database.typ
 export type TableNames = keyof Database['public']['Tables']
 export type TableRow<T extends TableNames> = Database['public']['Tables'][T]['Row']
 
+const subscriptions = new Map<string, Ref<RealtimeChannel | null>>()
+const database = new Map<string, Ref<TableRow<TableNames>[]> | null>()
+const prefetch = new Map<string, boolean>()
+
 /**
  * This composable provides a set of methods to interact with a specific table in the database.
  * @param table The name of the table to interact with.
@@ -24,21 +28,22 @@ export function useTable<T extends TableNames>(
 ) {
   type idType = TableRow<T>['id']
 
+  // Note that we can not use useSupabaseClient outside of the composable because it requires access to the nuxt instance
   const supabase = useSupabaseClient<Database>()
-  const rows = useState<TableRow<T>[]>((options?.prefix || 'supabase-') + table, () => [])
-  const fetch = useState<boolean>((options?.prefix || 'supabase-') + table + '-fetched', () => false)
-  const subscription = useState<RealtimeChannel | null>((options?.prefix || 'supabase-') + table + '-subscription', () => null)
 
-  // Fetch initial data from the database
+  const subscription = subscriptions.get(table) || subscriptions.set(table, ref(null)).get(table) as Ref<RealtimeChannel | null>
+  const rows = database.get(table) || database.set(table, ref([])).get(table) as Ref<TableRow<T>[]>
+
+  /**
+   *  Fetch initial data from the database
+   * */
   const fetchData = async () => {
-    const fetched = fetch.value
-    fetch.value = true
-    if (options?.verbose) console.log('fetching data')
+    const prefetched = prefetch.get(table) || false;
+    prefetch.set(table, true);
+    if (options?.verbose) console.log('fetching data for table', table)
     const { data, error } = await supabase.from(table).select('*').returns<TableRow<T>[]>()
     if (error) {
-      // reset to previous state; usually this method gets called only at the start of the load and should be called only once.
-      fetch.value = fetched
-
+      prefetch.set(table, prefetched);
       throw error
     }
     if (data) rows.value = data
@@ -47,6 +52,7 @@ export function useTable<T extends TableNames>(
 
   // Add a new row to the table
   const create = async (newRow: TablesInsert<T>) => {
+    if (options?.verbose) console.log('creating new row in table', table, newRow)
     const { data, error } = await supabase
       .from(table as TableNames)
       .insert(newRow).single()
@@ -56,6 +62,7 @@ export function useTable<T extends TableNames>(
 
   // Update a row in the table
   const update = async (id: idType, updatedData: TablesUpdate<T>) => {
+    if (options?.verbose) console.log('updating row in table', table, id, updatedData)
     const { data, error } = await supabase
       .from(table as TableNames)
       .update(updatedData)
@@ -70,6 +77,7 @@ export function useTable<T extends TableNames>(
 
   // Delete a row from the table
   const remove = async (id: idType) => {
+    if (options?.verbose) console.log('deleting row from table', table, id)
     const { error } = await supabase
       .from(table)
       .delete()
@@ -80,47 +88,55 @@ export function useTable<T extends TableNames>(
 
   // Real-time subscription
   const subscribe = () => {
+    if (options?.verbose) console.log('subscribing to real-time changes')
     if (subscription.value) subscription.value.unsubscribe()
-    subscription.value = supabase
-      .channel(table)
-      .on('postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-        },
-        (payload: RealtimePostgresInsertPayload<TableRow<T>>) => {
-          if (options?.verbose) console.log('INSERT', payload)
-          rows.value.push(payload.new)
-        },
-      )
-      .on('postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-        },
-        (payload: RealtimePostgresUpdatePayload<TableRow<T>>) => {
-          if (options?.verbose) console.log('UPDATE', payload)
-          const index = rows.value.findIndex(row => row.id === payload.old.id)
-          if (index !== -1) rows.value[index] = payload.new
-        },
-      )
-      .on('postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-        },
-        (payload: RealtimePostgresDeletePayload<TableRow<T>>) => {
-          if (options?.verbose) console.log('DELETE', payload)
-          rows.value = rows.value.filter(row => row.id !== payload.old.id)
-        },
-      )
-      .subscribe()
+    try {
+      subscription.value = supabase
+        .channel(table)
+        .on('postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+          },
+          (payload: RealtimePostgresInsertPayload<TableRow<T>>) => {
+            if (options?.verbose) console.log('INSERT', payload)
+            rows.value.push(payload.new)
+          },
+        )
+        .on('postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+          },
+          (payload: RealtimePostgresUpdatePayload<TableRow<T>>) => {
+            if (options?.verbose) console.log('UPDATE', payload)
+            const index = rows.value.findIndex(row => row.id === payload.old.id)
+            if (index !== -1) rows.value[index] = payload.new
+          },
+        )
+        .on('postgres_changes',
+          {
+            event: 'DELETE',
+            schema: 'public',
+          },
+          (payload: RealtimePostgresDeletePayload<TableRow<T>>) => {
+            if (options?.verbose) console.log('DELETE', payload)
+            rows.value = rows.value.filter(row => row.id !== payload.old.id)
+          },
+        )
+        .subscribe((status) => {
+          if (options?.verbose) console.log('subscription status:', status)
+        })
+    }
+    catch (error) {
+      console.error('Failed to subscribe to real-time changes:', error)
+    }
     if (options?.verbose) console.log(`subscribed to real-time changes on table ${table}`)
   }
 
   // Initialize data and subscribe to real-time changes
-  if (options?.autoFetch !== false && !fetch.value) fetchData()
   if (options?.autoSubscribe !== false && subscription.value === null) subscribe()
+  if (prefetch.get(table) !== true && options?.autoFetch !== false) fetchData()
 
   // Return methods for external use
   return {
