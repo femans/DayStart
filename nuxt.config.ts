@@ -12,7 +12,13 @@ export default defineNuxtConfig({
   css: [
     'vue-arrange/dist/vue-arrange.css',
   ],
+  router: {
+    options: {
+      strict: false, // Allows reusing components with dynamic params
+    },
+  },
   compatibilityDate: '2024-10-18',
+  debug: false,
   eslint: {
     config: {
       stylistic: true,

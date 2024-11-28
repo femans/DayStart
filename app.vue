@@ -8,6 +8,9 @@ useHead({
 
 <template>
   <Title>DayStart.IO</Title>
-  <AppHeader class="w-full h-20" />
-  <NuxtPage class="max-w-2xl min-w-min mx-auto sm:px-6 lg:px-8 flex items-center justify-center" />
+  <AppHeader />
+  <NuxtPage
+    class="max-w-2xl min-w-min mx-auto sm:px-6 lg:px-8 flex items-center justify-center"
+    page-key="nuxt-page"
+  />
 </template>
