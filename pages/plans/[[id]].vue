@@ -33,7 +33,7 @@ async function addPlan() {
       <UInput
         v-model="newPlan"
         :loading="loading"
-        class="w-full"
+        class="w-full dark:border-green-400"
         size="xl"
         variant="outline"
         type="text"
@@ -51,12 +51,12 @@ async function addPlan() {
     </form>
     <UCard class="px-6 py-2 overflow-hidden w-full">
       <BreadCrumbs
-        class="self-start text-slate-500 w-full border-stone-300 border p-2 rounded"
+        class="self-start text-slate-500 w-full border-stone-300 dark:border-black border p-2 rounded"
         :plan="pagePlanId"
       />
       <table class="w-full">
         <thead>
-          <tr class="flex-row flex border-b divide-y divide-gray-200">
+          <tr class="flex-row flex border-b dark:border-black">
             <th
               class="flex items-center mr-auto select-none"
             >

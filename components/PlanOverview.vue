@@ -33,7 +33,7 @@ const completePlan = async (p: Plan) => {
     :list="plansList"
     :options="{
       hoverClass: 'flex flex-row cursor-grabbing drop-shadow-[0_10px_10px_rgba(0,0,0,1)] scale-105 select-none',
-      defaultItemClass: 'flex-row flex border-b divide-y divide-gray-200',
+      defaultItemClass: 'flex-row flex border-b dark:border-black',
       liftDelay: 200,
       handle: true,
     }"

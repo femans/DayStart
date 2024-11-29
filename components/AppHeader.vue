@@ -32,7 +32,7 @@ const topNavLinks = [
         :key="link.to"
         :to="link.to"
         variant="link"
-        color="gray"
+          class="text-gray-700 dark:text-slate-200"
         :icon="link.icon"
         :label="link.label"
       />
@@ -48,18 +48,18 @@ const topNavLinks = [
           class="mx-1"
           :alt="user.user_metadata.full_name"
         />
-        <span class="hidden md:inline-flex">{{ user.user_metadata.full_name }}</span>
+        <span class="text-gray-700 dark:text-slate-200 hidden md:inline-flex">{{ user.user_metadata.full_name }}</span>
         <UButton
           variant="link"
-          color="gray"
+          class="text-gray-700 dark:text-slate-200"
           icon="i-heroicons-outline-logout"
           @click="logout"
         />
       </div>
       <UButton
         variant="link"
-        color="gray"
-        :icon="colorModeIcon"
+        class="text-yellow-100 dark:text-slate-200"
+        :icon="colorMode.preference === 'dark' ? 'i-heroicons-outline-moon' : 'i-heroicons-outline-sun'"
         @click="toggleDark"
       />
     </div>

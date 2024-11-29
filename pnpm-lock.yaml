@@ -27,8 +27,8 @@ importers:
         specifier: latest
         version: 3.5.13(typescript@5.7.2)
       vue-arrange:
-        specifier: ^1.2.5
-        version: 1.2.5(typescript@5.7.2)
+        specifier: ^1.2.6
+        version: 1.2.6(typescript@5.7.2)
       vue-router:
         specifier: latest
         version: 4.5.0(vue@3.5.13(typescript@5.7.2))
@@ -4172,8 +4172,8 @@ packages:
   vscode-uri@3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
 
-  vue-arrange@1.2.5:
-    resolution: {integrity: sha512-zIJB1L04C3bmlhdV3FftBGIkMmPuwZQfC2w6vpCO9yF2FQuZj24UbtKrNrAoeNVEzfXw4f85dO9JE/BW1pju7A==}
+  vue-arrange@1.2.6:
+    resolution: {integrity: sha512-bTvIETCFexmdtP7oUgCcrVjjr9pen8fcxVQI1pbhcAm4oz1sZdDR8t8asLvTaeKIiWh/jm9H9eyitGsc0DlK0g==}
 
   vue-bundle-renderer@2.1.1:
     resolution: {integrity: sha512-+qALLI5cQncuetYOXp4yScwYvqh8c6SMXee3B+M7oTZxOgtESP0l4j/fXdEJoZ+EdMxkGWIj+aSEyjXkOdmd7g==}
@@ -8991,7 +8991,7 @@ snapshots:
 
   vscode-uri@3.0.8: {}
 
-  vue-arrange@1.2.5(typescript@5.7.2):
+  vue-arrange@1.2.6(typescript@5.7.2):
     dependencies:
       '@vueuse/components': 11.3.0(vue@3.5.13(typescript@5.7.2))
       '@vueuse/core': 11.3.0(vue@3.5.13(typescript@5.7.2))

@@ -17,7 +17,7 @@
     "@supabase/realtime-js": "^2.10.7",
     "nuxt": "^3.14.1592",
     "vue": "latest",
-    "vue-arrange": "^1.2.5",
+    "vue-arrange": "^1.2.6",
     "vue-router": "latest",
     "yup": "^1.4.0"
   },
