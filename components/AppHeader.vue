@@ -7,8 +7,6 @@ const toggleDark = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
 
-const colorModeIcon = computed(() => colorMode.preference === 'dark' ? 'i-heroicons-outline-moon' : 'i-heroicons-outline-sun')
-
 const logout = async () => {
   await client.auth.signOut()
   navigateTo('/')
@@ -22,8 +20,8 @@ const topNavLinks = [
 </script>
 
 <template>
-  <header class="flex items-center md:justify-between justify-center bg-sky-300 dark:bg-sky-950 dark:bg-gradient-to-b dark:from-black w-full h-20">
-    <div class="bg-yellow-200 dark:bg-slate-200 font-bold text-black text-3xl m-4 p-2 outline-double rounded-tl-xl rounded-br-xl select-none">
+  <header class="flex items-center md:justify-between justify-center bg-sky-300 dark:bg-sky-950 dark:bg-gradient-to-b dark:from-black w-full h-20 transition-colors duration-300">
+    <div class="bg-yellow-200 dark:bg-slate-200 font-bold text-black text-3xl m-4 p-2 outline-double rounded-tl-xl rounded-br-xl select-none transition-colors">
       DayStart
     </div>
     <div class="flex items-center">
@@ -32,7 +30,7 @@ const topNavLinks = [
         :key="link.to"
         :to="link.to"
         variant="link"
-          class="text-gray-700 dark:text-slate-200"
+        class="text-gray-700 dark:text-slate-200"
         :icon="link.icon"
         :label="link.label"
       />

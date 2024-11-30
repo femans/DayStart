@@ -3,11 +3,12 @@ import { DropZone } from 'vue-arrange'
 import BreadCrumbs from '~/components/BreadCrumbs.vue'
 import type { TablesInsert } from '~~/types/database.types'
 
-const plans = useTable('plans', { verbose: true, autoFetch: true, autoSubscribe: true })
+const plans = useTable('plans', { verbose: true, autoFetch: true })
 const route = useRoute()
 const user = useSupabaseUser()
 
 const pagePlanId = computed(() => isNaN(parseInt(route.params.id as string)) ? null : parseInt(route.params.id as string))
+const pagePlan = computed(() => plans.data.value.find(p => p.id === pagePlanId.value))
 
 const loading = ref(false)
 const newPlan = ref('')
@@ -26,34 +27,37 @@ async function addPlan() {
 
 <template>
   <div class="w-full flex flex-col items-start">
-    <form
-      class="flex gap-2 my-2 w-full"
-      @submit.prevent="addPlan"
-    >
-      <UInput
-        v-model="newPlan"
-        :loading="loading"
-        class="w-full dark:border-green-400"
-        size="xl"
-        variant="outline"
-        type="text"
-        name="newPlan"
-        placeholder="Type something"
-        autofocus
-        autocomplete="off"
-      />
-      <UButton
-        type="submit"
-        variant="outline"
-      >
-        Add
-      </UButton>
-    </form>
+    <BreadCrumbs
+      class="self-start text-slate-500 w-full m-2"
+      :plan="pagePlanId"
+    />
     <UCard class="px-6 py-2 overflow-hidden w-full">
-      <BreadCrumbs
-        class="self-start text-slate-500 w-full border-stone-300 dark:border-black border p-2 rounded"
-        :plan="pagePlanId"
-      />
+      <h1 class="text-3xl font-bold">
+        {{ pagePlan ? pagePlan.title : 'Projects' }}
+      </h1>
+      <form
+        class="flex gap-2 my-2 w-full"
+        @submit.prevent="addPlan"
+      >
+        <UInput
+          v-model="newPlan"
+          :loading="loading"
+          class="w-full dark:border-green-400"
+          size="xl"
+          variant="outline"
+          type="text"
+          name="newPlan"
+          placeholder="Type something"
+          autofocus
+          autocomplete="off"
+        />
+        <UButton
+          type="submit"
+          variant="outline"
+        >
+          Add
+        </UButton>
+      </form>
       <table class="w-full">
         <thead>
           <tr class="flex-row flex border-b dark:border-black">

@@ -4,6 +4,12 @@ useHead({
     class: '',
   },
 })
+
+const { subscribe } = useDataBase({
+  verbose: true,
+})
+
+subscribe()
 </script>
 
 <template>

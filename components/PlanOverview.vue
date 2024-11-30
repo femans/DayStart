@@ -14,7 +14,7 @@ function moveItem(item: MovingItem<Plan>) {
 
 const props = defineProps<{ plan: number | null }>()
 
-const plans = useTable('plans', { verbose: true, autoFetch: true, autoSubscribe: true })
+const plans = useTable('plans', { verbose: true, autoFetch: true})
 const plansList = computed(() => plans.data.value
   .filter(p => !p.archived)
   .filter(p => p.parent_id === props.plan)

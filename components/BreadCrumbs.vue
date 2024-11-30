@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{ plan: number | null }>()
 
-const plans = useTable('plans', { verbose: true, autoFetch: true, autoSubscribe: true })
+const plans = useTable('plans', { verbose: true, autoFetch: true})
 const trail = computed(() => {
   const trail = []
   let current = props.plan
@@ -22,7 +22,7 @@ const trail = computed(() => {
     >
       🏡
       <template v-if="trail.length > 3">
-        ...⭢
+        ⇛
       </template>
     </NuxtLink>
     <template
@@ -34,7 +34,7 @@ const trail = computed(() => {
       >
         {{ plan.title }}
       </NuxtLink>
-      <span v-if="i < trail.length - 1">⭢</span>
+      <span v-if="i < Math.min(trail.length - 1, 2)">➞</span>
     </template>
     <NuxtLink
       v-if="trail.length > 0"
