@@ -11,6 +11,14 @@ function moveItem(item: MovingItem<Plan>) {
   if (!item.destination) return
   if (item.destination.identifier === 'trashbin') {
     plans.update(item.payload.id, { archived: true })
+    return
+  }
+  if (item.destination.identifier === thisList) {
+    item.destination.listItems?.forEach((listItem, index) => {
+      listItem.priority = index
+      plans.update(listItem.id, { priority: index })
+    })
+    return
   }
 }
 
@@ -20,7 +28,7 @@ const plans = useTable('plans', { verbose: true, autoFetch: true })
 const plansList = computed(() => plans.data.value
   .filter(p => !p.archived)
   .filter(p => p.parent_id === props.planId)
-  .toSorted((a, b) => (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()))
+  .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0)))
 
 const completePlan = async (p: Plan) => {
   await plans.update(p.id, { done: !p.done })
@@ -28,6 +36,7 @@ const completePlan = async (p: Plan) => {
 
 const finishedChildren = (itemId: number) => plans.data.value.filter(p => p.parent_id === itemId && p.done).length
 const unfinishedChildren = (itemId: number) => plans.data.value.filter(p => p.parent_id === itemId && !p.done).length
+const thisList = Symbol()
 </script>
 
 <template>
@@ -36,12 +45,14 @@ const unfinishedChildren = (itemId: number) => plans.data.value.filter(p => p.pa
     tag="tbody"
     list-item-tag="tr"
     :list="plansList"
+    list-key="id"
     :options="{
       hoverClass: 'flex flex-row cursor-grabbing drop-shadow-[0_10px_10px_rgba(0,0,0,1)] scale-105 select-none',
       defaultItemClass: 'flex-row flex border-b dark:border-black',
       liftDelay: 200,
       handle: true,
     }"
+    :identifier="thisList"
     group="plansGroup"
     @drop-item="moveItem"
   >

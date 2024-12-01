@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const props = defineProps<{ plan: number | null }>()
 
-const plans = useTable('plans', { verbose: true, autoFetch: true})
+const plans = useTable('plans', { verbose: true, autoFetch: true })
 const trail = computed(() => {
   const trail = []
   let current = props.plan
@@ -16,15 +16,25 @@ const trail = computed(() => {
 </script>
 
 <template>
-  <div class="flex gap-2">
+  <div class="flex gap-2 items-center">
     <NuxtLink
       :to="{ name: 'plans-id', params: { id: null } }"
+      class="text-2xl"
     >
-      🏡
-      <template v-if="trail.length > 3">
-        ⇛
-      </template>
+      <UIcon name="i-heroicons-home" />
     </NuxtLink>
+    <template
+      v-if="trail.length > 3"
+    >
+      <UIcon
+        name="i-heroicons-arrow-right-16-solid"
+      />
+      ...
+    </template>
+    <UIcon
+      v-if="trail.length > 0"
+      name="i-heroicons-arrow-right-16-solid"
+    />
     <template
       v-for="(plan, i) in trail.slice(-3)"
       :key="i"
@@ -34,13 +44,16 @@ const trail = computed(() => {
       >
         {{ plan.title }}
       </NuxtLink>
-      <span v-if="i < Math.min(trail.length - 1, 2)">➞</span>
+      <UIcon
+        v-if="i < Math.min(trail.length - 1, 2)"
+        name="i-heroicons-arrow-right-16-solid"
+      />
     </template>
     <NuxtLink
       v-if="trail.length > 0"
       :to="{ name: 'plans-id', params: { id: trail.at(-1)?.parent_id } }"
     >
-      ⮌
+      <UIcon name="i-heroicons-arrow-uturn-left-16-solid" />
     </NuxtLink>
   </div>
 </template>
