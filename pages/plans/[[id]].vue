@@ -23,6 +23,22 @@ async function addPlan() {
     error => console.error('Error adding plan:', error),
   ).finally(() => loading.value = false)
 }
+
+let timeout: ReturnType<typeof setTimeout> | null = null
+
+async function updatePlan(event: Event) {
+  if (timeout) clearTimeout(timeout)
+  timeout = setTimeout(async () => {
+    if (!user.value) return
+    if (!pagePlan.value) return
+    const target = event.target as HTMLInputElement
+    const title = target.value
+    plans.update(pagePlan.value.id, { title }).then(
+      () => console.log(`Plan ${pagePlanId.value} updated with title: ${title}`),
+      error => console.error('Error updating plan:', error),
+    )
+  }, 150)
+}
 </script>
 
 <template>
@@ -32,8 +48,18 @@ async function addPlan() {
       :plan="pagePlanId"
     />
     <UCard class="px-6 py-2 overflow-hidden w-full">
-      <h1 class="text-3xl font-bold">
-        {{ pagePlan ? pagePlan.title : 'Projects' }}
+      <input
+        v-if="pagePlan"
+        :value="pagePlan.title"
+        class="text-3xl font-bold"
+        type="text"
+        @change="updatePlan"
+      >
+      <h1
+        v-else
+        class="text-3xl font-bold"
+      >
+        Projects
       </h1>
       <form
         class="flex gap-2 my-2 w-full"
@@ -73,7 +99,7 @@ async function addPlan() {
             </th>
           </tr>
         </thead>
-        <PlanOverview :plan="pagePlanId" />
+        <PlanOverview :planId="pagePlanId" />
       </table>
     </UCard>
     <DropZone

@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import { ArrangeableList, type MovingItem } from 'vue-arrange'
+import { ArrangeableList, type MovingItem, useMovingItem } from 'vue-arrange'
 import type { Tables } from '~~/types/database.types'
+
+const { isMoving } = useMovingItem()
 
 type Plan = Tables<'plans'>
 
@@ -12,17 +14,20 @@ function moveItem(item: MovingItem<Plan>) {
   }
 }
 
-const props = defineProps<{ plan: number | null }>()
+const props = defineProps<{ planId: number | null }>()
 
-const plans = useTable('plans', { verbose: true, autoFetch: true})
+const plans = useTable('plans', { verbose: true, autoFetch: true })
 const plansList = computed(() => plans.data.value
   .filter(p => !p.archived)
-  .filter(p => p.parent_id === props.plan)
+  .filter(p => p.parent_id === props.planId)
   .toSorted((a, b) => (new Date(a.created_at)).getTime() - (new Date(b.created_at)).getTime()))
 
 const completePlan = async (p: Plan) => {
   await plans.update(p.id, { done: !p.done })
 }
+
+const finishedChildren = (itemId: number) => plans.data.value.filter(p => p.parent_id === itemId && p.done).length
+const unfinishedChildren = (itemId: number) => plans.data.value.filter(p => p.parent_id === itemId && !p.done).length
 </script>
 
 <template>
@@ -56,18 +61,27 @@ const completePlan = async (p: Plan) => {
         >
           {{ item.title }}
           <UBadge
-            v-if="plans.data.value.filter(p => p.parent_id === item.id && !p.archived && !p.done).length > 0"
-            class="bg-red-400 rounded-full"
+            v-if="unfinishedChildren(item.id)"
+            class="bg-red-200 rounded-full text-black"
           >
-            {{ plans.data.value.filter(p => p.parent_id === item.id && !p.archived && !p.done).length }}
+            {{ unfinishedChildren(item.id) }}
+          </UBadge>
+          <UBadge
+            v-if="finishedChildren(item.id) && !unfinishedChildren(item.id)"
+            class="bg-green-400 rounded-full"
+          >
+            <UIcon name="i-heroicons-check-20-solid" />
           </UBadge>
         </NuxtLink>
       </td>
-      <td class="flex items-center">
+      <td
+        v-if="!isMoving(item)"
+        class="flex items-center"
+      >
         <UToggle
           v-model="item.done"
-          color="violet"
-          on-icon="i-heroicons-check-20-solid"
+          :color="unfinishedChildren(item.id) ? 'red' : 'violet'"
+          :on-icon="unfinishedChildren(item.id) ? 'i-heroicons-hand-raised-solid' : 'i-heroicons-check-20-solid'"
           @click="completePlan(item)"
         />
       </td>
