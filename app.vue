@@ -1,22 +1,22 @@
 <script setup lang="ts">
 useHead({
   bodyAttrs: {
-    class: "",
+    class: '',
   },
-});
+})
 
 const { subscribe } = useDataBase({
   verbose: true,
-});
+})
 
-subscribe();
+subscribe()
 </script>
 
 <template>
   <Title>DayStart.IO</Title>
   <AppHeader />
   <NuxtPage
-    class="max-w-2xl min-w-min mx-auto sm:px-6 lg:px-8 flex items-center justify-center"
+    class="mx-auto flex min-w-min max-w-2xl items-center justify-center sm:px-6 lg:px-8"
     page-key="nuxt-page"
   />
 </template>

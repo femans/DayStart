@@ -1,23 +1,23 @@
 <script setup lang="ts">
-const client = useSupabaseClient();
-const user = useSupabaseUser();
-const colorMode = useColorMode();
-const { realtimeSubscriptionStatus } = useDataBase();
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+const colorMode = useColorMode()
+const { realtimeSubscriptionStatus } = useDataBase()
 
 const toggleDark = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-};
+}
 
 const logout = async () => {
   await client.auth.signOut()
   navigateTo('/')
-};
+}
 
 const topNavLinks = [
   { label: 'Home', icon: 'i-heroicons-outline-home', to: '/' },
   { label: 'Projects', icon: 'i-heroicons-outline-calendar', to: '/plans' },
   // { label: 'Settings', icon: 'i-heroicons-outline-cog', to: '/settings' },
-];
+]
 </script>
 
 <template>

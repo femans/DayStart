@@ -3,7 +3,6 @@
 // Your custom configs here
 import eslintPluginVue from 'eslint-plugin-vue'
 import eslintPluginTailwindCSS from 'eslint-plugin-tailwindcss'
-import eslintPluginPrettier from 'eslint-plugin-prettier'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 const nuxtConfig = await withNuxt()
@@ -24,7 +23,6 @@ export default [
     plugins: {
       vue: eslintPluginVue,
       tailwindcss: eslintPluginTailwindCSS,
-      prettier: eslintPluginPrettier,
     },
     rules: {
       ...eslintPluginVue.configs['vue3-recommended'].rules,
@@ -59,13 +57,6 @@ export default [
         {
           singleline: 'never',
           multiline: 'always',
-        },
-      ],
-      'prettier/prettier': [
-        'error',
-        {
-          singleQuote: true,
-          semi: false,
         },
       ],
     },
