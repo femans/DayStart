@@ -65,9 +65,9 @@ const completePlan = async (p: Plan) => {
 }
 
 const finishedChildren = (itemId: number) =>
-  plans.data.value.filter(p => p.parent_id === itemId && p.done).length
+  plans.data.value.filter(p => p.parent_id === itemId && p.done && !p.archived).length
 const unfinishedChildren = (itemId: number) =>
-  plans.data.value.filter(p => p.parent_id === itemId && !p.done).length
+  plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
 </script>
 
 <template>

@@ -39,8 +39,7 @@ const trail = computed(() => {
       :to="{ name: 'plans-id', params: { id: trail.at(-1)?.parent_id } }"
     >
       <UIcon
-        name="
-      i-heroicons-arrow-uturn-left-16-solid"
+        name="i-heroicons-arrow-uturn-left-16-solid"
       />
     </NuxtLink>
   </div>

@@ -1,6 +1,3 @@
-// @ts-check
-
-// Your custom configs here
 import eslintPluginVue from 'eslint-plugin-vue'
 import eslintPluginTailwindCSS from 'eslint-plugin-tailwindcss'
 import withNuxt from './.nuxt/eslint.config.mjs'
