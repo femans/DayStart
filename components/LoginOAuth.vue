@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { auth } = useSupabaseClient()
+const { auth } = useSupabaseClient();
 </script>
 
 <template>
@@ -14,10 +14,14 @@ const { auth } = useSupabaseClient()
       label="Github"
       color="primary"
       variant="solid"
-      @click="auth.signInWithOAuth({ provider: 'github',
-                                     options: {
-                                       redirectTo: '/plans',
-                                     } })"
+      @click="
+        auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: '/plans',
+          },
+        })
+      "
     />
     <UButton
       class="mt-3"

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 useHead({
   bodyAttrs: {
-    class: '',
+    class: "",
   },
-})
+});
 
 const { subscribe } = useDataBase({
   verbose: true,
-})
+});
 
-subscribe()
+subscribe();
 </script>
 
 <template>

@@ -16,33 +16,18 @@ const trail = computed(() => {
 </script>
 
 <template>
-  <div class="flex gap-2 items-center">
-    <NuxtLink
-      :to="{ name: 'plans-id', params: { id: null } }"
-      class="text-2xl"
-    >
+  <div class="flex items-center gap-2">
+    <NuxtLink :to="{ name: 'plans-id', params: { id: null } }" class="text-2xl">
       <UIcon name="i-heroicons-home" />
     </NuxtLink>
-    <template
-      v-if="trail.length > 3"
-    >
-      <UIcon
-        name="i-heroicons-arrow-right-16-solid"
-      />
+    <template v-if="trail.length > 3">
+      <UIcon name="i-heroicons-arrow-right-16-solid" />
       ...
     </template>
-    <UIcon
-      v-if="trail.length > 0"
-      name="i-heroicons-arrow-right-16-solid"
-    />
-    <template
-      v-for="(plan, i) in trail.slice(-3)"
-      :key="i"
-    >
-      <NuxtLink
-        :to="{ name: 'plans-id', params: { id: plan.id } }"
-      >
-        {{ plan.title }}
+    <UIcon v-if="trail.length > 0" name="i-heroicons-arrow-right-16-solid" />
+    <template v-for="(trailPlan, i) in trail.slice(-3)" :key="i">
+      <NuxtLink :to="{ name: 'plans-id', params: { id: trailPlan.id } }">
+        {{ trailPlan.title }}
       </NuxtLink>
       <UIcon
         v-if="i < Math.min(trail.length - 1, 2)"
@@ -53,7 +38,10 @@ const trail = computed(() => {
       v-if="trail.length > 0"
       :to="{ name: 'plans-id', params: { id: trail.at(-1)?.parent_id } }"
     >
-      <UIcon name="i-heroicons-arrow-uturn-left-16-solid" />
+      <UIcon
+        name="
+      i-heroicons-arrow-uturn-left-16-solid"
+      />
     </NuxtLink>
   </div>
 </template>
