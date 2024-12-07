@@ -25,23 +25,20 @@ const topNavLinks = [
     class="flex h-20 w-full items-center justify-center bg-sky-300 transition-colors duration-300 md:justify-between dark:bg-sky-950 dark:bg-gradient-to-b dark:from-black"
   >
     <div
-      class="m-4 select-none rounded-br-xl rounded-tl-xl bg-yellow-200 p-2 text-3xl font-bold text-black outline-double transition-colors dark:bg-slate-200"
+      class="relative m-4 select-none rounded-br-xl rounded-tl-xl bg-yellow-200 p-2 text-3xl font-bold text-black outline-double transition-colors dark:bg-slate-200"
     >
       DayStart
+      <UIcon
+        v-if="realtimeSubscriptionStatus !== 'SUBSCRIBED'"
+        name="i-heroicons-bolt-slash"
+        class="absolute right-1 top-1 size-2 bg-red-500"
+      />
+      <UIcon
+        v-else
+        name="i-heroicons-bolt"
+        class="absolute right-1 top-1 size-2 bg-green-500"
+      />
     </div>
-    <UIcon
-      size="xs"
-      :name="
-        realtimeSubscriptionStatus === 'SUBSCRIBED'
-          ? 'i-heroicons-bolt'
-          : 'i-heroicons-bolt-slash'
-      "
-      :class="
-        realtimeSubscriptionStatus === 'SUBSCRIBED'
-          ? 'bg-green-700'
-          : 'bg-red-500'
-      "
-    />
     <div class="flex items-center">
       <UButton
         v-for="link in topNavLinks"

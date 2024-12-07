@@ -17,7 +17,8 @@ function moveItem(item: MovingItem<Plan>) {
     plans.update(item.payload.id, { archived: true })
     return
   }
-  if (item.destination.identifier === thisList) {
+  // todo fix this:
+  if (item.destination.identifier === 'thisList') {
     const destinationIndex = item.destination.index ?? -1
     const aboveItem = (destinationIndex > 0) ? item.destination.listItems!.at(destinationIndex - 1) : undefined
     const belowItem = (destinationIndex + 1 < item.destination.listItems!.length) ? item.destination.listItems!.at(destinationIndex + 1) : undefined

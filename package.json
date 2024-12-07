@@ -14,7 +14,8 @@
     "preview": "nuxt preview",
     "lint": "eslint .",
     "lintfix": "eslint . --fix",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prepare": "husky"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
@@ -33,10 +34,18 @@
     "@types/eslint-plugin-tailwindcss": "^3.17.0",
     "eslint": "^9.15.0",
     "eslint-plugin-tailwindcss": "^3.17.5",
+    "eslint-plugin-vue": "^9.32.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "typescript": "^5.7.2"
   },
   "resolutions": {
     "cross-spawn": "^7.0.5"
+  },
+  "lint-staged": {
+    "*.{js,mjs,cjs,jsx,ts,tsx,vue}": [
+      "eslint --fix"
+    ]
   },
   "module": "esnext"
 }
