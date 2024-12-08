@@ -5,6 +5,7 @@ import {
   type RealtimePostgresInsertPayload,
   type RealtimePostgresUpdatePayload,
 } from '@supabase/realtime-js'
+
 import type {
   Database,
   TablesInsert,
@@ -26,8 +27,17 @@ export type DbOptions = {
   verbose?: boolean
 }
 
-const subscription = ref<RealtimeChannel | null>()
+let subscription: RealtimeChannel | null = null
 const realtimeSubscriptionStatus = ref<string | null>()
+
+watch(() => realtimeSubscriptionStatus.value, (status) => {
+  if (status === 'CLOSED') {
+    console.log('Subscription closing observed, resubscribing...')
+    const { subscribe } = useDataBase()
+    subscribe()
+  }
+})
+
 const database = new Map<string, Ref<TableRow<TableNames>[]> | null>()
 const prefetch = new Map<string, boolean>()
 
@@ -35,14 +45,14 @@ export function useDataBase(options?: DbOptions) {
   const supabase = useSupabaseClient<Database>()
 
   const subscribe = async () => {
-    if (subscription.value)
-      await subscription.value.unsubscribe().then(() => {
+    if (subscription)
+      await subscription.unsubscribe().then(() => {
         if (options?.verbose)
           console.log('unsubscribed from real-time changes')
       })
 
     try {
-      subscription.value = await supabase
+      subscription = await supabase
         .channel('realtime')
         .on(
           REALTIME_LISTEN_TYPES.POSTGRES_CHANGES,
