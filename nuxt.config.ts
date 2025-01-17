@@ -16,6 +16,9 @@ export default defineNuxtConfig({
       strict: false, // Allows reusing components with dynamic params
     },
   },
+  devServer: {
+    port: 7777,
+  },
   compatibilityDate: '2024-10-18',
   debug: false,
   eslint: {

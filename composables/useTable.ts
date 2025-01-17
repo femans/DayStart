@@ -45,11 +45,13 @@ export function useDataBase(options?: DbOptions) {
   const supabase = useSupabaseClient<Database>()
 
   const subscribe = async () => {
-    if (subscription)
+    if (subscription && realtimeSubscriptionStatus.value !== 'CLOSED')
       await subscription.unsubscribe().then(() => {
         if (options?.verbose)
           console.log('unsubscribed from real-time changes')
       })
+
+    realtimeSubscriptionStatus.value = null
 
     try {
       subscription = await supabase
@@ -146,15 +148,15 @@ export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
   const update = async (id: idType, updatedData: TablesUpdate<T>) => {
     if (options?.verbose)
       console.log('updating row in table', table, id, updatedData)
-    const { data, error } = await supabase
+    const { data, status, statusText } = await supabase
       .from(table as TableNames)
       .update(updatedData)
       .eq('id', id)
-      .single()
-    if (error) throw error
+      .select()
+    if (status !== 200) throw Error(statusText)
     if (data) {
       const index = rows.value.findIndex(row => row.id === id)
-      if (index !== -1) rows.value[index] = data
+      if (index !== -1) rows.value[index] = data[0]
     }
   }
 
