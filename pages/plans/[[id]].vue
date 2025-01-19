@@ -110,12 +110,14 @@ async function updatePlan(event: Event) {
       group="plansGroup"
       class="inline-block"
     >
-      <div
+      <UTooltip
+        text="Archive"
+        :popper="{ placement: 'bottom', arrow: true, offsetDistance: 0 }"
         class="flex size-20 select-none items-center justify-center transition-all"
         :class="isHovering ? 'text-5xl' : 'text-4xl'"
       >
-        🗑
-      </div>
+        <UIcon :name="isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box'" />
+      </UTooltip>
     </DropZone>
   </div>
 </template>

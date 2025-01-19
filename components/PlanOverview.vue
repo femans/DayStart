@@ -40,23 +40,15 @@ function moveItem(item: MovingItem<Plan>) {
   }
 }
 
-const plansList = ref([] as Plan[])
-
-watch(
-  () => plans.data.value,
-  (newPlans) => {
-    plansList.value = newPlans
-      .filter(p => !p.archived)
-      .filter(p => p.parent_id === props.planId)
-      .toSorted((a, b) => {
-        if (a.done === b.done) {
-          return (a.priority ?? 0) - (b.priority ?? 0)
-        }
-        return a.done ? 1 : -1
-      })
-  },
-  { immediate: true, deep: true },
-)
+const plansList = computed(() => plans.data.value
+  .filter(p => !p.archived)
+  .filter(p => p.parent_id === props.planId)
+  .toSorted((a, b) => {
+    if (a.done === b.done) {
+      return (a.priority ?? 0) - (b.priority ?? 0)
+    }
+    return a.done ? 1 : -1
+  }))
 
 const completePlan = async (p: Plan) => {
   await plans.update(p.id, { done: !p.done })
