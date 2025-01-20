@@ -111,7 +111,7 @@ export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
 
   const rows
     = database.get(table)
-    || (database.set(table, ref([])).get(table) as Ref<TableRow<T>[]>)
+      || (database.set(table, ref([])).get(table) as Ref<TableRow<T>[]>)
 
   /**
    *  Fetch initial data from the database
@@ -163,8 +163,11 @@ export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
   // Delete a row from the table
   const remove = async (id: idType) => {
     if (options?.verbose) console.log('deleting row from table', table, id)
-    const { error } = await supabase.from(table).delete().eq('id', id)
-    if (error) throw error
+    const { status, statusText } = await supabase
+      .from(table as TableNames)
+      .delete()
+      .eq('id', id)
+    if (status !== 204) throw Error(statusText)
     rows.value = rows.value.filter(row => row.id !== id)
   }
 

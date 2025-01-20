@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { DropZone } from 'vue-arrange'
+import { DropZone, useMovingItem } from 'vue-arrange'
 import BreadCrumbs from '~/components/BreadCrumbs.vue'
-import type { TablesInsert } from '~~/types/database.types'
+import type { Tables, TablesInsert } from '~~/types/database.types'
 import PlanOverview from '~/components/PlanOverview.vue'
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 const route = useRoute()
 const user = useSupabaseUser()
+
+type Plan = Tables<'plans'>
+const { movingItem } = useMovingItem<Plan>()
 
 const pagePlanId = computed(() =>
   isNaN(parseInt(route.params.id as string))
@@ -16,6 +19,20 @@ const pagePlanId = computed(() =>
 const pagePlan = computed(() =>
   plans.data.value.find(p => p.id === pagePlanId.value),
 )
+
+const pagePlanHasDoneChildren = computed(() =>
+  plans.data.value.some(p => p.parent_id === pagePlanId.value && p.done && !p.archived),
+)
+const pagePlanArchivedChildrenCount = computed(() =>
+  plans.data.value.filter(p => p.parent_id === pagePlanId.value && p.archived).length,
+)
+function archiveDoneChildren() {
+  if (!user.value) return
+  if (!pagePlanId.value) return
+  plans.data.value
+    .filter(p => p.parent_id === pagePlanId.value && p.done && !p.archived)
+    .forEach(p => plans.update(p.id, { archived: true }))
+}
 
 const loading = ref(false)
 const newPlan = ref('')
@@ -55,6 +72,8 @@ async function updatePlan(event: Event) {
     )
   }, 150)
 }
+
+const showArchived = ref(false)
 </script>
 
 <template>
@@ -73,7 +92,22 @@ async function updatePlan(event: Event) {
         @change="updatePlan"
         @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
       />
-      <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
+      <div class="flex w-full flex-row">
+        <span v-if="pagePlan" class="text-sm text-slate-400">
+          {{ pagePlan.id }}
+        </span>
+        <UButton
+          v-if="pagePlanHasDoneChildren"
+          class="ml-auto"
+          variant="solid"
+          size="xs"
+          color="gray"
+          @click="archiveDoneChildren"
+        >
+          Archive done
+        </UButton>
+      </div>
+      <h1 v-if="!pagePlan" class="flex flex-row items-center gap-2 text-3xl font-bold">
         <UIcon name="i-heroicons-home" />
         Home
       </h1>
@@ -102,22 +136,53 @@ async function updatePlan(event: Event) {
           Done?
         </div>
       </div>
-      <PlanOverview ref="planOverview" :plan-id="pagePlanId" />
+      <PlanOverview ref="planOverview" :plan-id="pagePlanId" :show-archived="showArchived" />
     </UCard>
     <DropZone
       v-slot="{ isHovering }"
       identifier="trashbin"
       group="plansGroup"
-      class="inline-block"
     >
-      <UTooltip
-        text="Archive"
-        :popper="{ placement: 'bottom', arrow: true, offsetDistance: 0 }"
-        class="flex size-20 select-none items-center justify-center transition-all"
-        :class="isHovering ? 'text-5xl' : 'text-4xl'"
+      <UCard
+        class="m-2 flex w-auto flex-col items-center rounded-lg bg-sky-50"
+        :class="{
+          'border-red-500': movingItem?.payload.archived,
+          'border-gray-300': !movingItem?.payload.archived,
+        }"
       >
-        <UIcon :name="isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box'" />
-      </UTooltip>
+        <div class="flex flex-col items-center">
+          <div class="flex items-center">
+            <UIcon
+              class="transition-all "
+              :class="{
+                'size-16': isHovering,
+                'size-12': !isHovering,
+                'text-red-500': isHovering && movingItem?.payload.archived,
+                'text-gray-400': !isHovering || !movingItem?.payload.archived,
+              }"
+              :name="movingItem?.payload.archived ? 'i-heroicons-trash' : (isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box')"
+            />
+          </div>
+          <UTooltip class="flex items-center" :prevent="isHovering" text="Toggle to show archived items">
+            <UButton
+              class="m-1 flex select-none transition-all"
+              variant="solid"
+              :color="isHovering && movingItem?.payload.archived ? 'red' : 'gray'"
+              size="xs"
+              @click="() => { !isHovering && (showArchived = !showArchived) }"
+            >
+              {{ movingItem?.payload.archived ? 'Drop here to delete forever' : (movingItem ? 'Drop here to archive' : `Archive: ${pagePlanArchivedChildrenCount || 'empty'}`) }}
+            </UButton>
+            <UToggle
+              v-if="!movingItem"
+              v-model="showArchived"
+              on-icon="i-heroicons-eye"
+              off-icon="i-heroicons-eye-slash"
+              class="m-1"
+            />
+          </UTooltip>
+        </div>
+      </UCard>
     </DropZone>
   </div>
 </template>
