@@ -123,7 +123,13 @@ const plansGroup = 'plansGroup'
               @click="archiveRestore(item.id)"
             />
           </UTooltip>
-          <NuxtLink :to="{ name: 'plans-id', params: { id: item.id } }">
+          <NuxtLink
+            :to="{ name: 'plans-id', params: { id: item.id } }"
+            :class="{
+              'italic text-slate-400 dark:text-slate-600': item.archived,
+              'text-slate-700 dark:text-slate-200': !item.archived,
+            }"
+          >
             {{ item.title }}<span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
             <UBadge v-if="unfinishedChildren(item.id)" class="rounded-full bg-red-200 text-black">
               {{ unfinishedChildren(item.id) }}
@@ -134,7 +140,10 @@ const plansGroup = 'plansGroup'
             </UBadge>
           </NuxtLink>
         </div>
-        <div v-if="!isMoving(item)" class="flex items-center">
+        <div
+          v-if="!isMoving(item)"
+          class="flex items-center"
+        >
           <UToggle
             v-model="item.done"
             :on-icon="
@@ -142,7 +151,13 @@ const plansGroup = 'plansGroup'
                 ? 'i-heroicons-hand-raised-solid'
                 : 'i-heroicons-check-20-solid'
             "
-            :class="item.archived || !item.done ? 'bg-gray-300' : unfinishedChildren(item.id) ? 'bg-red-500' : 'bg-purple-500'"
+            :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
+            :color="item.archived || !item.done ? 'gray' as any : unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
+            :class="{
+              'text-gray-400': item.archived,
+              'text-red-500': item.done && unfinishedChildren(item.id),
+              'text-purple-500': item.done && !unfinishedChildren(item.id),
+            }"
             @click="completePlan(item)"
           />
         </div>

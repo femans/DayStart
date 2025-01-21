@@ -87,14 +87,19 @@ const showArchived = ref(false)
         v-if="pagePlan"
         :value="pagePlan.title"
         class="h-auto w-full overflow-hidden text-3xl font-bold"
+        :class="{
+          'italic text-slate-400': pagePlan.archived,
+          'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+        }"
         rows="1"
         oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
         @change="updatePlan"
         @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
       />
-      <div class="flex w-full flex-row">
+      <div class="flex w-full flex-row items-center">
+        <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
         <span v-if="pagePlan" class="text-sm text-slate-400">
-          {{ pagePlan.id }}
+          {{ pagePlan.archived ? `${pagePlan.id} ARCHIVED` : pagePlan.id }}
         </span>
         <UButton
           v-if="pagePlanHasDoneChildren"
@@ -143,46 +148,55 @@ const showArchived = ref(false)
       identifier="trashbin"
       group="plansGroup"
     >
-      <UCard
-        class="m-2 flex w-auto flex-col items-center rounded-lg bg-sky-50"
-        :class="{
-          'border-red-500': movingItem?.payload.archived,
-          'border-gray-300': !movingItem?.payload.archived,
-        }"
-      >
-        <div class="flex flex-col items-center">
-          <div class="flex items-center">
-            <UIcon
-              class="transition-all "
-              :class="{
-                'size-16': isHovering,
-                'size-12': !isHovering,
-                'text-red-500': isHovering && movingItem?.payload.archived,
-                'text-gray-400': !isHovering || !movingItem?.payload.archived,
-              }"
-              :name="movingItem?.payload.archived ? 'i-heroicons-trash' : (isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box')"
-            />
-          </div>
-          <UTooltip class="flex items-center" :prevent="isHovering" text="Toggle to show archived items">
-            <UButton
+      <UTooltip :popper="{ arrow: true }" :prevent="isHovering" text="Toggle to show archived items">
+        <UCard
+          class="m-2 flex w-auto flex-col items-center rounded-lg bg-sky-50 transition-all hover:bg-sky-100"
+          :class="{
+            'border-red-500': movingItem?.payload.archived,
+            'border-gray-300': !movingItem?.payload.archived,
+          }"
+          @click="() => { !isHovering && (showArchived = !showArchived) }"
+        >
+          <div class="flex flex-col items-center">
+            <span
               class="m-1 flex select-none transition-all"
-              variant="solid"
-              :color="isHovering && movingItem?.payload.archived ? 'red' : 'gray'"
+              :class="{
+                'text-red-500': isHovering && movingItem?.payload.archived,
+              }"
               size="xs"
-              @click="() => { !isHovering && (showArchived = !showArchived) }"
             >
-              {{ movingItem?.payload.archived ? 'Drop here to delete forever' : (movingItem ? 'Drop here to archive' : `Archive: ${pagePlanArchivedChildrenCount || 'empty'}`) }}
-            </UButton>
-            <UToggle
-              v-if="!movingItem"
-              v-model="showArchived"
-              on-icon="i-heroicons-eye"
-              off-icon="i-heroicons-eye-slash"
-              class="m-1"
-            />
-          </UTooltip>
-        </div>
-      </UCard>
+              {{ movingItem?.payload.archived ? 'Drop here to DELETE forever' : (movingItem ? 'Drop here to archive' : `Archive: ${pagePlanArchivedChildrenCount || 'empty'}`) }}
+            </span>
+            <span v-if="movingItem?.payload.archived && plans.data.value.some(p => p.parent_id === movingItem?.payload.id)" class="flex items-center text-sm">
+              <UIcon name="i-heroicons-information-circle" />
+              This item can not be deleted, because it has dependencies
+            </span>
+            <span v-else-if="movingItem?.payload.archived" class="flex items-center text-sm text-red-500">
+              <UIcon name="i-heroicons-exclamation-triangle" />
+              This action is irreversible
+            </span>
+            <div class="flex items-center">
+              <UIcon
+                class="transition-all "
+                :class="{
+                  'size-16': isHovering,
+                  'size-12': !isHovering,
+                  'text-red-500': isHovering && movingItem?.payload.archived,
+                  'text-gray-400': !isHovering || !movingItem?.payload.archived,
+                }"
+                :name="movingItem?.payload.archived ? 'i-heroicons-trash' : (isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box')"
+              />
+              <UToggle
+                v-if="!movingItem"
+                v-model="showArchived"
+                on-icon="i-heroicons-eye"
+                off-icon="i-heroicons-eye-slash"
+                class="m-1"
+              />
+            </div>
+          </div>
+        </UCard>
+      </UTooltip>
     </DropZone>
   </div>
 </template>
