@@ -15,7 +15,9 @@
     "lint": "eslint .",
     "lintfix": "eslint . --fix",
     "postinstall": "nuxt prepare",
-    "prepare": "husky"
+    "prepare": "husky",
+    "supa-types": "pnpx supabase gen types --lang=typescript --project-id \"$PROJECT_REF\" > types/database.types.ts",
+    "supa-types-local": "pnpx supabase gen types typescript --local > types/database.types.ts"
   },
   "COMMENT_ON_SUPABASE_REALTIME": "The version of @supabase/realtime-js is pinned to 2.10.9 to be compatible with @nuxtjs/supabase. So this must be updated alongside with that.",
   "dependencies": {

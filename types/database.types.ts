@@ -9,10 +9,10 @@ export type Json =
 export type Database = {
   graphql_public: {
     Tables: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     Views: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     Functions: {
       graphql: {
@@ -26,10 +26,10 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never;
+      [_ in never]: never
     }
   }
   public: {
@@ -55,13 +55,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'plan_dependencies_created_by_fkey'
-            columns: ['created_by']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
             foreignKeyName: 'plan_dependencies_depends_on_id_fkey'
             columns: ['depends_on_id']
             isOneToOne: false
@@ -80,54 +73,56 @@ export type Database = {
       plans: {
         Row: {
           archived: boolean
+          archived_date: string | null
+          assigned_by: string | null
+          assignee_id: string
           budget: number | null
           created_at: string
           created_by: string
           definition_of_done: string | null
           done: boolean
+          done_date: string | null
           id: number
           manhours: number | null
           parent_id: number | null
           priority: number | null
-          responsible_id: string
           title: string | null
         }
         Insert: {
           archived?: boolean
+          archived_date?: string | null
+          assigned_by?: string | null
+          assignee_id: string
           budget?: number | null
           created_at?: string
           created_by?: string
           definition_of_done?: string | null
           done?: boolean
+          done_date?: string | null
           id?: number
           manhours?: number | null
           parent_id?: number | null
           priority?: number | null
-          responsible_id: string
           title?: string | null
         }
         Update: {
           archived?: boolean
+          archived_date?: string | null
+          assigned_by?: string | null
+          assignee_id?: string
           budget?: number | null
           created_at?: string
           created_by?: string
           definition_of_done?: string | null
           done?: boolean
+          done_date?: string | null
           id?: number
           manhours?: number | null
           parent_id?: number | null
           priority?: number | null
-          responsible_id?: string
           title?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: 'plans_created_by_fkey'
-            columns: ['created_by']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
           {
             foreignKeyName: 'Plans_parent_fkey'
             columns: ['parent_id']
@@ -135,27 +130,20 @@ export type Database = {
             referencedRelation: 'plans'
             referencedColumns: ['id']
           },
-          {
-            foreignKeyName: 'Plans_responsible_fkey'
-            columns: ['responsible_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
         ]
       }
     }
     Views: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     Enums: {
-      [_ in never]: never;
+      [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never;
+      [_ in never]: never
     }
   }
 }
@@ -240,4 +228,19 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
     ? PublicSchema['Enums'][PublicEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+  | keyof PublicSchema['CompositeTypes']
+  | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema['CompositeTypes']
+    ? PublicSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never

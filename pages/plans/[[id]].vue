@@ -43,7 +43,7 @@ async function addPlan() {
   loading.value = true
   const plan: TablesInsert<'plans'> = {
     title: newPlan.value,
-    responsible_id: user.value.id,
+    assignee_id: user.value.id,
     parent_id: pagePlanId.value,
     priority: Math.max(0, ...plans.data.value.filter(p => p.parent_id === pagePlanId.value).map(p => p.priority || 0)) + 1,
   }
@@ -195,7 +195,7 @@ const showArchived = ref(false)
               />
               <UToggle
                 v-if="!movingItem"
-                v-model="showArchived"
+                :model-value="showArchived"
                 on-icon="i-heroicons-eye"
                 off-icon="i-heroicons-eye-slash"
                 class="m-1"
