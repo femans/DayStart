@@ -153,17 +153,12 @@ const plansGroup = 'plansGroup'
             "
             :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
             :color="item.archived || !item.done ? 'gray' as any : unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
-            :class="{
-              'text-gray-400': item.archived,
-              'text-red-500': item.done && unfinishedChildren(item.id),
-              'text-purple-500': item.done && !unfinishedChildren(item.id),
-            }"
             @click="completePlan(item)"
           />
         </div>
       </div>
       <DisclosurePanel class="w-full">
-        <PlanOverview :plan-id="item.id" class="ml-6 min-h-3 rounded-bl border-b border-l pl-1" :show-archived="showArchived" />
+        <PlanOverview :plan-id="item.id" class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700" :show-archived="showArchived" />
       </DisclosurePanel>
     </Disclosure>
   </ArrangeableList>

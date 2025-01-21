@@ -129,9 +129,16 @@ const showArchived = ref(false)
           autofocus
           autocomplete="off"
         />
-        <UButton type="submit" variant="outline">
-          Add
-        </UButton>
+        <UTooltip
+          text="Add new plan"
+          col
+          :shortcuts="['⤶']"
+          :popper="{ arrow: true }"
+        >
+          <UButton type="submit" variant="outline">
+            Add
+          </UButton>
+        </UTooltip>
       </form>
       <div class="flex w-full select-none flex-row border-b font-bold dark:border-black">
         <div class="mr-auto flex items-center">
