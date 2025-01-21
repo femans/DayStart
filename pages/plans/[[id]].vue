@@ -74,6 +74,15 @@ async function updatePlan(event: Event) {
 }
 
 const showArchived = ref(false)
+
+const titleArea = ref<HTMLElement | null>(null)
+watch(() => route.params, async () => {
+  await nextTick()
+  if (titleArea.value) {
+    titleArea.value.style.height = ''
+    titleArea.value.style.height = `${titleArea.value.scrollHeight}px`
+  }
+})
 </script>
 
 <template>
@@ -85,6 +94,7 @@ const showArchived = ref(false)
     <UCard class="w-full overflow-hidden px-6 py-2">
       <textarea
         v-if="pagePlan"
+        ref="titleArea"
         :value="pagePlan.title"
         class="h-auto w-full overflow-hidden text-3xl font-bold"
         :class="{
@@ -142,7 +152,7 @@ const showArchived = ref(false)
       </form>
       <div class="flex w-full select-none flex-row border-b font-bold dark:border-black">
         <div class="mr-auto flex items-center">
-          Project
+          Projects: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived).length }}
         </div>
         <div class="flex items-center">
           Done?
