@@ -131,12 +131,19 @@ const plansGroup = 'plansGroup'
             }"
           >
             {{ item.title }}<span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
-            <UBadge v-if="unfinishedChildren(item.id)" class="rounded-full bg-red-200 text-black">
+            <UBadge
+              v-if="unfinishedChildren(item.id)"
+              class="mr-1 rounded-full bg-red-200 text-black"
+            >
               {{ unfinishedChildren(item.id) }}
             </UBadge>
-            <UBadge v-if="finishedChildren(item.id) && !unfinishedChildren(item.id)" class="rounded-full" :class="item.archived ? 'bg-gray-300' : 'bg-green-400'">
+            <UBadge
+              v-if="finishedChildren(item.id)"
+              class="mr-1 rounded-full"
+              :class="item.archived ? 'bg-gray-300' : 'bg-green-400'"
+            >
               {{ finishedChildren(item.id) }}
-              <UIcon name="i-heroicons-check-20-solid" />
+              <UIcon v-if="!unfinishedChildren(item.id)" name="i-heroicons-check-20-solid" />
             </UBadge>
           </NuxtLink>
         </div>
@@ -152,7 +159,11 @@ const plansGroup = 'plansGroup'
                 : 'i-heroicons-check-20-solid'
             "
             :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
-            :color="item.archived || !item.done ? 'gray' as any : unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
+            :color="unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
+            :class="{
+              'bg-gray-200 dark:bg-gray-700': !item.done,
+              'bg-gray-400 dark:bg-gray-500': item.done && item.archived,
+            }"
             @click="completePlan(item)"
           />
         </div>
