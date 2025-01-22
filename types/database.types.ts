@@ -83,7 +83,7 @@ export type Database = {
           done: boolean
           done_date: string | null
           id: number
-          manhours: number | null
+          manhours_required: number | null
           parent_id: number | null
           priority: number | null
           title: string | null
@@ -100,7 +100,7 @@ export type Database = {
           done?: boolean
           done_date?: string | null
           id?: number
-          manhours?: number | null
+          manhours_required?: number | null
           parent_id?: number | null
           priority?: number | null
           title?: string | null
@@ -117,7 +117,7 @@ export type Database = {
           done?: boolean
           done_date?: string | null
           id?: number
-          manhours?: number | null
+          manhours_required?: number | null
           parent_id?: number | null
           priority?: number | null
           title?: string | null
