@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ArrangeableList, type MovingItem, useMovingItem } from 'vue-arrange'
+import SubPlanList from '~/components/PlanPage/SubPlanList.vue'
 import type { Tables } from '~~/types/database.types'
 
 const { isMoving } = useMovingItem()
@@ -169,7 +170,7 @@ const plansGroup = 'plansGroup'
         </div>
       </div>
       <DisclosurePanel class="w-full">
-        <PlanOverview :plan-id="item.id" class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700" :show-archived="showArchived" />
+        <SubPlanList :plan-id="item.id" class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700" :show-archived="showArchived" />
       </DisclosurePanel>
     </Disclosure>
   </ArrangeableList>

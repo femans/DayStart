@@ -41,6 +41,16 @@ async function updatePlan(event: Event) {
     )
   }, 150)
 }
+
+const titleArea = ref<HTMLElement | null>(null)
+
+watch(() => route.params, async () => {
+  await nextTick()
+  if (titleArea.value) {
+    titleArea.value.style.height = ''
+    titleArea.value.style.height = `${titleArea.value.scrollHeight}px`
+  }
+})
 </script>
 
 <template>
