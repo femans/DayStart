@@ -1,46 +1,27 @@
 <script lang="ts" setup>
-const user = useSupabaseUser()
+import HeadInput from './HeadInput.vue'
+import useDatabaseHelpers from './useDatabaseHelpers'
+
 const route = useRoute()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
+const { pagePlanId, pagePlan, updatePlan, archiveDoneChildren } = useDatabaseHelpers()
 
-const pagePlanId = computed(() =>
-  isNaN(parseInt(route.params.id as string))
-    ? null
-    : parseInt(route.params.id as string),
+const finishedChildren = computed(() =>
+  plans.data.value.filter(p => p.parent_id === pagePlanId.value && p.done && !p.archived),
 )
 
-const pagePlan = computed(() =>
-  plans.data.value.find(p => p.id === pagePlanId.value),
+const unfinishedChildren = computed(() =>
+  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
 )
 
-const pagePlanHasDoneChildren = computed(() =>
-  plans.data.value.some(p => p.parent_id === pagePlanId.value && p.done && !p.archived),
+const totalChildren = computed(() => plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived).length)
+
+const manhoursRequiredByChildren = computed(() =>
+  unfinishedChildren.value.reduce((
+    total,
+    plan,
+  ) => total + (plan.manhours_required || 0), 0),
 )
-
-function archiveDoneChildren() {
-  if (!user.value) return
-  if (!pagePlanId.value) return
-  plans.data.value
-    .filter(p => p.parent_id === pagePlanId.value && p.done && !p.archived)
-    .forEach(p => plans.update(p.id, { archived: true }))
-}
-
-let debounceTimeout: ReturnType<typeof setTimeout> | null = null
-
-async function updatePlan(event: Event) {
-  if (debounceTimeout) clearTimeout(debounceTimeout)
-  debounceTimeout = setTimeout(async () => {
-    if (!user.value) return
-    if (!pagePlan.value) return
-    const target = event.target as HTMLInputElement
-    const title = target.value
-    plans.update(pagePlan.value.id, { title }).then(
-      () =>
-        console.log(`Plan ${pagePlanId.value} updated with title: ${title}`),
-      error => console.error('Error updating plan:', error),
-    )
-  }, 150)
-}
 
 const titleArea = ref<HTMLElement | null>(null)
 
@@ -55,9 +36,10 @@ watch(() => route.params, async () => {
 
 <template>
   <textarea
-    v-if="pagePlan"
+    v-if="pagePlanId"
     ref="titleArea"
-    :value="pagePlan.title"
+    v-model="pagePlan.title"
+    name="title"
     class="h-auto w-full overflow-hidden text-3xl font-bold"
     :class="{
       'italic text-slate-400': pagePlan.archived,
@@ -65,16 +47,20 @@ watch(() => route.params, async () => {
     }"
     rows="1"
     oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-    @change="updatePlan"
+    @change="updatePlan({ title: ($event.target as HTMLTextAreaElement).value })"
     @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
   />
-  <div class="flex w-full flex-row items-center">
+  <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
+    <UIcon name="i-heroicons-home" />
+    Home
+  </h1>
+  <div class="mb-1 flex w-full flex-row items-center">
     <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
     <span v-if="pagePlan" class="text-sm text-slate-400">
       {{ pagePlan.archived ? `${pagePlan.id} ARCHIVED` : pagePlan.id }}
     </span>
     <UButton
-      v-if="pagePlanHasDoneChildren"
+      v-if="finishedChildren"
       class="ml-auto"
       variant="solid"
       size="xs"
@@ -84,8 +70,26 @@ watch(() => route.params, async () => {
       Archive done
     </UButton>
   </div>
-  <h1 v-if="!pagePlan" class="flex flex-row items-center gap-2 text-3xl font-bold">
-    <UIcon name="i-heroicons-home" />
-    Home
-  </h1>
+  <UCard v-if="pagePlanId">
+    <HeadInput
+      :label="totalChildren ? 'Manhours overhead on this project:' : 'Hours required for this task'"
+      field="manhours_required"
+      input-type="number"
+    />
+    <div
+      v-if="unfinishedChildren"
+      class="m-1 flex w-full text-sm"
+    >
+      <span> Manhours required for subtasks: </span>
+      <span class="ml-auto mr-2 p-1">
+        {{ manhoursRequiredByChildren }}
+      </span>
+    </div>
+    <UDivider />
+    <HeadInput
+      label="Budget:"
+      field="budget"
+      input-type="number"
+    />
+  </UCard>
 </template>

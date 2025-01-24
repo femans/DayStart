@@ -4,9 +4,9 @@ import { ArrangeableList, type MovingItem, useMovingItem } from 'vue-arrange'
 import SubPlanList from '~/components/PlanPage/SubPlanList.vue'
 import type { Tables } from '~~/types/database.types'
 
-const { isMoving } = useMovingItem()
-
 type Plan = Tables<'plans'>
+
+const { isMoving } = useMovingItem()
 
 const props = defineProps<{
   planId: number | null
@@ -69,6 +69,8 @@ const finishedChildren = (itemId: number) =>
   plans.data.value.filter(p => p.parent_id === itemId && p.done && !p.archived).length
 const unfinishedChildren = (itemId: number) =>
   plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
+const totalChildren = (itemId: number) =>
+  plans.data.value.filter(p => p.parent_id === itemId && !p.archived).length
 
 const markArchiveRestore = ref<number | null>(null)
 const archiveRestore = (id: number) => {
@@ -111,12 +113,13 @@ const plansGroup = 'plansGroup'
             <UIcon
               :name="open ? 'i-heroicons-chevron-down-16-solid' : 'i-heroicons-chevron-right-16-solid'"
               class="self-center"
+              :class="{
+                'bg-gray-700': totalChildren(item.id),
+                'bg-slate-300': totalChildren(item.id) === 0,
+              }"
             />
           </DisclosureButton>
-          <UTooltip
-            v-if="item.archived"
-            text="Click 2x to restore from archive"
-          >
+          <UTooltip v-if="item.archived" text="Click 2x to restore from archive">
             <UIcon
               :name="markArchiveRestore === item.id ? 'i-heroicons-archive-box-x-mark': 'i-heroicons-archive-box'"
               class="mr-1 hover:bg-purple-500"
@@ -132,10 +135,7 @@ const plansGroup = 'plansGroup'
             }"
           >
             {{ item.title }}<span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
-            <UBadge
-              v-if="unfinishedChildren(item.id)"
-              class="mr-1 rounded-full bg-red-200 text-black"
-            >
+            <UBadge v-if="unfinishedChildren(item.id)" class="mr-1 rounded-full bg-red-200 text-black">
               {{ unfinishedChildren(item.id) }}
             </UBadge>
             <UBadge
@@ -148,29 +148,38 @@ const plansGroup = 'plansGroup'
             </UBadge>
           </NuxtLink>
         </div>
-        <div
-          v-if="!isMoving(item)"
-          class="flex items-center"
-        >
-          <UToggle
-            v-model="item.done"
-            :on-icon="
-              unfinishedChildren(item.id)
-                ? 'i-heroicons-hand-raised-solid'
-                : 'i-heroicons-check-20-solid'
-            "
-            :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
-            :color="unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
-            :class="{
-              'bg-gray-200 dark:bg-gray-700': !item.done,
-              'bg-gray-400 dark:bg-gray-500': item.done && item.archived,
-            }"
-            @click="completePlan(item)"
-          />
+        <div v-if="!isMoving(item)" class="flex gap-4 divide-x divide-solid">
+          <input
+            class="w-8 text-right text-sm outline-none"
+            :value="item.manhours_required"
+            @change="plans.update(item.id, { manhours_required: ($event.target as HTMLInputElement).value })"
+            @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
+          >
+          <div class="pl-4">
+            <UToggle
+              v-model="item.done"
+              :on-icon="
+                unfinishedChildren(item.id)
+                  ? 'i-heroicons-hand-raised-solid'
+                  : 'i-heroicons-check-20-solid'
+              "
+              :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
+              :color="unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
+              :class="{
+                'bg-gray-200 dark:bg-gray-700': !item.done,
+                'bg-gray-400 dark:bg-gray-500': item.done && item.archived,
+              }"
+              @click="completePlan(item)"
+            />
+          </div>
         </div>
       </div>
       <DisclosurePanel class="w-full">
-        <SubPlanList :plan-id="item.id" class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700" :show-archived="showArchived" />
+        <SubPlanList
+          :plan-id="item.id"
+          class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700"
+          :show-archived="showArchived"
+        />
       </DisclosurePanel>
     </Disclosure>
   </ArrangeableList>
