@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import HeadInput from './HeadInput.vue'
-import useDatabaseHelpers from './useDatabaseHelpers'
+import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 
 const route = useRoute()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
@@ -71,7 +70,7 @@ watch(() => route.params, async () => {
     </UButton>
   </div>
   <UCard v-if="pagePlanId">
-    <HeadInput
+    <PlansHeaderInput
       :label="totalChildren ? 'Manhours overhead on this project:' : 'Hours required for this task'"
       field="manhours_required"
       input-type="number"
@@ -86,7 +85,7 @@ watch(() => route.params, async () => {
       </span>
     </div>
     <UDivider />
-    <HeadInput
+    <PlansHeaderInput
       label="Budget:"
       field="budget"
       input-type="number"

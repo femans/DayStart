@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import useDatabaseHelpers from './useDatabaseHelpers'
+import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
 
-const { pagePlan, pagePlanId, updatePlan } = useDatabaseHelpers()
+const { pagePlan } = useDatabaseHelpers()
 
 defineProps <{
   label: string
@@ -18,12 +18,11 @@ defineProps <{
     <span>
       {{ label }}
     </span>
-    <input
-      :value="String(pagePlan[field] ?? '') "
-      name="manhours_required"
+    <PlansValidatedInput
+      :plan="pagePlan"
+      :field="field"
+      :input-type="inputType"
       class="ml-auto rounded-md border border-slate-300 p-1 text-right text-sm text-slate-700"
-      @change="event => updatePlan({ id: pagePlanId || undefined, [field]: (event.target as HTMLInputElement).value })"
-      @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
-    >
+    />
   </div>
 </template>

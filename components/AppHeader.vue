@@ -15,7 +15,8 @@ const logout = async () => {
 
 const topNavLinks = [
   { label: 'Home', icon: 'i-heroicons-outline-home', to: '/' },
-  { label: 'Projects', icon: 'i-heroicons-outline-calendar', to: '/plans' },
+  { label: 'Projects', icon: 'i-heroicons-outline-calendar', to: '/projects' },
+  { label: 'Tasks', icon: 'i-heroicons-clipboard-document-list', to: '/tasks' },
   // { label: 'Settings', icon: 'i-heroicons-outline-cog', to: '/settings' },
 ]
 </script>

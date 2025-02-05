@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import BreadCrumbs from '~/components/BreadCrumbs.vue'
 import type { TablesInsert } from '~~/types/database.types'
-import SubPlanList from '~/components/PlanPage/SubPlanList.vue'
-import PlanPageHead from '~/components/PlanPage/PlanPageHead.vue'
-import ArchiveSection from '~/components/PlanPage/ArchiveSection.vue'
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 const route = useRoute()
@@ -47,7 +43,7 @@ const showArchived = ref(false)
       :plan="pagePlanId"
     />
     <UCard class="w-full overflow-hidden px-6 py-2">
-      <PlanPageHead />
+      <PlansHeader />
       <form class="my-2 flex w-full gap-2" @submit.prevent="addPlan">
         <UInput
           v-model="newPlan"
@@ -72,16 +68,26 @@ const showArchived = ref(false)
           </UButton>
         </UTooltip>
       </form>
-      <div class="flex w-full select-none flex-row border-b font-bold dark:border-black">
+      <div class="flex w-full select-none flex-row border-b dark:border-black">
         <div class="mr-auto flex items-center">
-          Projects: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived).length }}
+          Projects: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived && plans.data.value.some(q => q.parent_id === p.id && !q.archived)).length }};
+          Tasks: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived && !plans.data.value.some(q => q.parent_id === p.id && !q.archived)).length }}
         </div>
-        <div class="flex items-center">
+        <div class="flex w-10 justify-center bg-sky-100 p-1 text-xs">
+          Budget
+        </div>
+        <div class="flex w-10 justify-center bg-teal-100 p-1 text-xs">
+          Cost
+        </div>
+        <div class="flex w-10 justify-center bg-green-100 p-1 text-xs">
+          Hrs
+        </div>
+        <div class="flex w-10 justify-center p-1 text-xs">
           Done?
         </div>
       </div>
-      <SubPlanList :plan-id="pagePlanId" :show-archived="showArchived" />
+      <PlansNestedList :plan-id="pagePlanId" :show-archived="showArchived" />
     </UCard>
-    <ArchiveSection :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
+    <PlansArchiveSection :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
   </div>
 </template>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ArrangeableList, type MovingItem, useMovingItem } from 'vue-arrange'
-import SubPlanList from '~/components/PlanPage/SubPlanList.vue'
+import ValidatedPlanInput from './ValidatedInput.vue'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
@@ -103,7 +103,7 @@ const plansGroup = 'plansGroup'
     @drop-item="moveItem"
   >
     <Disclosure v-slot="{ open }" ref="disclosures">
-      <div class="flex w-full flex-row">
+      <div class="flex w-full flex-row items-center">
         <div
           class="mr-auto flex select-none items-center font-medium"
           :class="[item.done ? 'line-through' : '', item.archived ? 'text-gray-400' : 'text-gray-700']"
@@ -128,13 +128,20 @@ const plansGroup = 'plansGroup'
             />
           </UTooltip>
           <NuxtLink
-            :to="{ name: 'plans-id', params: { id: item.id } }"
+            :to="{ name: 'projects-id', params: { id: item.id } }"
             :class="{
               'italic text-slate-400 dark:text-slate-600': item.archived,
               'text-slate-700 dark:text-slate-200': !item.archived,
             }"
           >
-            {{ item.title }}<span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
+            <span
+              :class="
+                totalChildren(item.id) ? 'font-bold' : 'font-normal'
+              "
+            >
+              {{ item.title }}
+            </span>
+            <span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
             <UBadge v-if="unfinishedChildren(item.id)" class="mr-1 rounded-full bg-red-200 text-black">
               {{ unfinishedChildren(item.id) }}
             </UBadge>
@@ -148,14 +155,14 @@ const plansGroup = 'plansGroup'
             </UBadge>
           </NuxtLink>
         </div>
-        <div v-if="!isMoving(item)" class="flex gap-4 divide-x divide-solid">
-          <input
-            class="w-8 text-right text-sm outline-none"
-            :value="item.manhours_required"
-            @change="plans.update(item.id, { manhours_required: ($event.target as HTMLInputElement).value })"
-            @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
-          >
-          <div class="pl-4">
+        <div v-if="!isMoving(item)" class="flex flex-row items-center">
+          <ValidatedPlanInput
+            class="mb-1 mr-2 w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
+            field="manhours_required"
+            input-type="number"
+            :plan="item"
+          />
+          <div class="flex w-10 self-center">
             <UToggle
               v-model="item.done"
               :on-icon="
@@ -175,7 +182,7 @@ const plansGroup = 'plansGroup'
         </div>
       </div>
       <DisclosurePanel class="w-full">
-        <SubPlanList
+        <PlansNestedList
           :plan-id="item.id"
           class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700"
           :show-archived="showArchived"
