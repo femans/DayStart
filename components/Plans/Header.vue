@@ -3,11 +3,7 @@ import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 
 const route = useRoute()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { pagePlanId, pagePlan, updatePlan, archiveDoneChildren } = useDatabaseHelpers()
-
-const finishedChildren = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && p.done && !p.archived),
-)
+const { pagePlanId, pagePlan, updatePlan } = useDatabaseHelpers()
 
 const unfinishedChildren = computed(() =>
   plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
@@ -58,16 +54,6 @@ watch(() => route.params, async () => {
     <span v-if="pagePlan" class="text-sm text-slate-400">
       {{ pagePlan.archived ? `${pagePlan.id} ARCHIVED` : pagePlan.id }}
     </span>
-    <UButton
-      v-if="finishedChildren"
-      class="ml-auto"
-      variant="solid"
-      size="xs"
-      color="gray"
-      @click="archiveDoneChildren"
-    >
-      Archive done
-    </UButton>
   </div>
   <UCard v-if="pagePlanId">
     <PlansHeaderInput

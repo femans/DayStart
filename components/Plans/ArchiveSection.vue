@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { DropZone, useMovingItem } from 'vue-arrange'
+import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
 const { movingItem } = useMovingItem<Plan>()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 const route = useRoute()
+const { archiveDoneChildren } = useDatabaseHelpers()
 
 defineProps<{
   showArchived: boolean
@@ -23,6 +25,10 @@ const pagePlanId = computed(() =>
 
 const pagePlanArchivedChildrenCount = computed(() =>
   plans.data.value.filter(p => p.parent_id === pagePlanId.value && p.archived).length,
+)
+
+const finishedChildren = computed(() =>
+  plans.data.value.some(p => p.parent_id === pagePlanId.value && p.done && !p.archived),
 )
 </script>
 
@@ -79,6 +85,16 @@ const pagePlanArchivedChildrenCount = computed(() =>
               class="m-1"
             />
           </div>
+          <UButton
+            v-if="finishedChildren"
+            class="ml-auto"
+            variant="solid"
+            size="xs"
+            color="gray"
+            @click="archiveDoneChildren"
+          >
+            Archive all done tasks/projects
+          </UButton>
         </div>
       </UCard>
     </UTooltip>
