@@ -34,6 +34,10 @@ export default function useDatabaseHelpers() {
     }, 150)
   }
 
+  function updatePagePlan(update: Partial<Plan>) {
+    if (pagePlanId.value !== null) updatePlan({ id: pagePlanId.value, ...update })
+  }
+
   function archiveDoneChildren() {
     if (!user.value) return
     if (!pagePlanId.value) return
@@ -91,5 +95,5 @@ export default function useDatabaseHelpers() {
     })
   })
 
-  return { plans, pagePlan, pagePlanId, updatePlan, archiveDoneChildren, taskList, planChildrenMap }
+  return { plans, pagePlan, pagePlanId, updatePlan, updatePagePlan, archiveDoneChildren, taskList, planChildrenMap }
 }

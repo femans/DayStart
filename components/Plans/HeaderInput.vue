@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
@@ -22,7 +21,7 @@ defineProps <{
       :plan="pagePlan"
       :field="field"
       :input-type="inputType"
-      class="ml-auto rounded-md border border-slate-300 p-1 text-right text-sm text-slate-700"
+      class="ml-auto rounded-md border border-slate-300 p-1 text-right text-sm"
     />
   </div>
 </template>

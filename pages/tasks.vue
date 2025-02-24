@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ArrangeableList, useMovingItem } from 'vue-arrange'
-import useDatabaseHelpers from '../composables/useDatabaseHelpers'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>

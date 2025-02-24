@@ -88,6 +88,6 @@ const showArchived = ref(false)
       </div>
       <PlansNestedList :plan-id="pagePlanId" :show-archived="showArchived" />
     </UCard>
-    <PlansArchiveSection :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
+    <ArchivePanel :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
   </div>
 </template>

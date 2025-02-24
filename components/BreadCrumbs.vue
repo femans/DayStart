@@ -1,18 +1,8 @@
 <script lang="ts" setup>
 const props = defineProps<{ plan: number | null }>()
+const { getTrail } = useBreadCrumbs()
 
-const plans = useTable('plans', { verbose: true, autoFetch: true })
-const trail = computed(() => {
-  const trail = []
-  let current = props.plan
-  while (current) {
-    const plan = plans.data.value.find(p => p.id === current)
-    if (!plan) break
-    trail.unshift(plan)
-    current = plan.parent_id
-  }
-  return trail
-})
+const trail = computed(() => getTrail(props.plan))
 </script>
 
 <template>

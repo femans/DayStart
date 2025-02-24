@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import useDatabaseHelpers from '../../composables/useDatabaseHelpers'
 import type { Tables } from '~~/types/database.types'
 
 defineOptions({ inheritAttrs: false })
@@ -19,6 +18,14 @@ const input = ref(String(props.plan?.[props.field] ?? ''))
 const validInput = computed(() => {
   return props.inputType === 'text' || (input.value === undefined || !isNaN(Number(input.value)))
 })
+
+const changeHandler = (event: Event) => {
+  if (validInput.value) {
+    let value: string | null = (event.target as HTMLInputElement).value
+    if (value === '' && props.inputType === 'number') value = null
+    updatePlan({ id: props.plan.id || undefined, [props.field]: value })
+  }
+}
 </script>
 
 <template>
@@ -29,7 +36,7 @@ const validInput = computed(() => {
     :class="{
       'bg-red-300': !validInput,
     }"
-    @change="event => validInput && updatePlan({ id: plan.id || undefined, [field]: (event.target as HTMLInputElement).value })"
+    @change="changeHandler"
     @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
   >
 </template>
