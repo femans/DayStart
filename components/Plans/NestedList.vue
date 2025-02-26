@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ArrangeableList, type MovingItem, useMovingItem } from 'vue-arrange'
-import ValidatedPlanInput from './ValidatedInput.vue'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
@@ -156,14 +155,15 @@ const plansGroup = 'plansGroup'
           </NuxtLink>
         </div>
         <div v-if="!isMoving(item)" class="flex flex-row items-center">
-          <ValidatedPlanInput
+          <DSValidatedInput
             class="mb-1 mr-2 w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
             field="manhours_required"
             input-type="number"
             :plan="item"
           />
-          <div class="flex w-10 self-center">
+          <div class="flex w-10 justify-center self-center">
             <UToggle
+              v-if="totalChildren(item.id)"
               v-model="item.done"
               :on-icon="
                 unfinishedChildren(item.id)
@@ -178,13 +178,21 @@ const plansGroup = 'plansGroup'
               }"
               @click="completePlan(item)"
             />
+            <UCheckbox
+              v-else
+              v-model="item.done"
+              on-icon="i-heroicons-check-20-solid"
+              :class="{
+              }"
+              @click="completePlan(item)"
+            />
           </div>
         </div>
       </div>
       <DisclosurePanel class="w-full">
         <PlansNestedList
           :plan-id="item.id"
-          class="ml-6 min-h-3 rounded-bl border-b border-l pl-1 dark:border-gray-700"
+          class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-700"
           :show-archived="showArchived"
         />
       </DisclosurePanel>

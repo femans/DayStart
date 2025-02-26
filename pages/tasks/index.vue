@@ -61,6 +61,7 @@ const tasks = computed(() =>
       :options="{ handle: true }"
     >
       <div class="flex w-full flex-row">
+        <!-- handle and title -->
         <div
           class="mr-auto flex select-none items-center font-medium"
           :class="[item.done ? 'line-through' : '', item.archived ? 'text-gray-400' : 'text-gray-700']"
@@ -84,6 +85,7 @@ const tasks = computed(() =>
             {{ item.title }}
           </NuxtLink>
         </div>
+        <!-- details -->
         <div v-if="!isMoving(item)" class="flex flex-row">
           <PlansValidatedInput
             class="mb-1 mr-2  w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
@@ -91,13 +93,11 @@ const tasks = computed(() =>
             input-type="number"
             :plan="item"
           />
-          <div class="w-10">
-            <UToggle
+          <div class="flex w-10 justify-center">
+            <UCheckbox
               v-model="item.done"
               on-icon="i-heroicons-check-20-solid"
               :class="{
-                'bg-gray-200 dark:bg-gray-700': !item.done,
-                'bg-gray-400 dark:bg-gray-500': item.done && item.archived,
               }"
               @click="completePlan(item)"
             />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PlansBreadCrumbs } from '#components'
 import type { TablesInsert } from '~~/types/database.types'
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
@@ -38,7 +39,7 @@ const showArchived = ref(false)
 
 <template>
   <div class="flex w-full flex-col items-start">
-    <BreadCrumbs
+    <PlansBreadCrumbs
       class="m-2 w-full self-start text-slate-500"
       :plan="pagePlanId"
     />

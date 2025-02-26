@@ -16,7 +16,6 @@ export default function useDatabaseHelpers() {
   const pagePlan = computed<Plan>(() =>
     plans.data.value.find(p => p.id === pagePlanId.value) ?? {
       title: '',
-      manhours_required: 0,
     } as Plan,
   )
   let debounceTimeout: ReturnType<typeof setTimeout> | null = null

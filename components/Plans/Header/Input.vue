@@ -10,6 +10,7 @@ defineProps <{
   field: keyof Plan
   inputType: 'number' | 'text'
 }>()
+console.log(pagePlan.value.id)
 </script>
 
 <template>
@@ -17,8 +18,9 @@ defineProps <{
     <span>
       {{ label }}
     </span>
-    <PlansValidatedInput
+    <DSValidatedInput
       :plan="pagePlan"
+      v-bind="$attrs"
       :field="field"
       :input-type="inputType"
       class="ml-auto rounded-md border border-slate-300 p-1 text-right text-sm"

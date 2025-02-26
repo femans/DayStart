@@ -26,10 +26,16 @@ const changeHandler = (event: Event) => {
     updatePlan({ id: props.plan.id || undefined, [props.field]: value })
   }
 }
+watch(() => props.plan, (newPlan) => {
+  if (newPlan) {
+    input.value = String(newPlan[props.field] || '')
+  }
+}, { deep: true, immediate: true })
 </script>
 
 <template>
   <input
+    v-if="plan.id !== undefined"
     v-model="input"
     v-bind="$attrs"
     class="transition-all"

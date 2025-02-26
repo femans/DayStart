@@ -9,10 +9,23 @@ const unfinishedChildren = computed(() =>
   plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
 )
 
-const totalChildren = computed(() => plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived).length)
+const children = computed(() =>
+  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived),
+)
 
-const manhoursRequiredByChildren = computed(() =>
-  unfinishedChildren.value.reduce((
+const totalChildren = computed(() =>
+  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived).length,
+)
+
+const calculatedTimeRequired = computed(() =>
+  children.value.reduce((
+    total,
+    plan,
+  ) => total + (plan.manhours_required || 0), 0),
+)
+
+const finishedTaskTimeSpent = computed(() =>
+  calculatedTimeRequired.value - unfinishedChildren.value.reduce((
     total,
     plan,
   ) => total + (plan.manhours_required || 0), 0),
@@ -30,8 +43,9 @@ watch(() => route.params, async () => {
 </script>
 
 <template>
+  <!-- Title -->
   <textarea
-    v-if="pagePlanId"
+    v-if="pagePlanId !== null"
     ref="titleArea"
     v-model="pagePlan.title"
     name="title"
@@ -49,7 +63,8 @@ watch(() => route.params, async () => {
     <UIcon name="i-heroicons-home" />
     Home
   </h1>
-  <div class="mb-1 flex w-full flex-row items-center">
+  <!-- plan number and checkboxes -->
+  <div v-if="pagePlanId !== null" class="mb-1 flex w-full flex-row items-center">
     <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
     <span v-if="pagePlan" class="mr-auto text-sm text-slate-400">
       {{ pagePlan.archived ? `${pagePlan.id} ARCHIVED` : pagePlan.id }}
@@ -67,24 +82,42 @@ watch(() => route.params, async () => {
       @change="archived => updatePagePlan({ archived })"
     />
   </div>
+  <!-- overview panel -->
   <UCard v-if="pagePlanId">
+    <UMeter label="Progress" indicator :value=" finishedTaskTimeSpent / (calculatedTimeRequired || 1) * 100" />
     <PlansHeaderInput
       :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
       :class="{
-        'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < manhoursRequiredByChildren),
+        'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
       }"
       field="manhours_required"
+      :placeholder="calculatedTimeRequired"
       input-type="number"
     />
     <div
-      v-if="unfinishedChildren"
+      v-if="children.length"
       class="m-1 flex w-full text-sm"
     >
-      <span>Calculated time required: </span>
+      <span>Calculated time required for subtasks: </span>
       <span
         class="ml-auto mr-2 p-1"
       >
-        {{ manhoursRequiredByChildren }}
+        {{ calculatedTimeRequired }}h
+      </span>
+    </div>
+    <div
+      v-if="children.length && pagePlan.manhours_required !== null"
+      class="m-1 flex w-full text-sm"
+      :class="{
+        'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
+      }"
+    >
+      <span v-if="pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired)">Overtime:</span>
+      <span v-else>Margin:</span>
+      <span
+        class="ml-auto mr-2 p-1"
+      >
+        {{ Math.abs((pagePlan.manhours_required ?? 0) - calculatedTimeRequired) }}h / {{ Math.abs(pagePlan.manhours_required ? ((pagePlan.manhours_required) - calculatedTimeRequired) / pagePlan.manhours_required * 100 : 0).toFixed() }}%
       </span>
     </div>
     <UDivider />
