@@ -14,10 +14,9 @@ export default function useDatabaseHelpers() {
   )
 
   const pagePlan = computed<Plan>(() =>
-    plans.data.value.find(p => p.id === pagePlanId.value) ?? {
-      title: '',
-    } as Plan,
+    plans.data.value.find(p => p.id === pagePlanId.value) ?? {} as Plan,
   )
+
   let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 
   function updatePlan(update: Partial<Plan>) {

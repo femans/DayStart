@@ -1,29 +1,53 @@
 <script setup lang="ts">
 import { PlansBreadCrumbs } from '#components'
-import type { TablesInsert } from '~~/types/database.types'
+import type { Tables, TablesInsert } from '~~/types/database.types'
+
+type Plan = Tables<'plans'>
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
-const route = useRoute()
+const { pagePlanId, pagePlan } = useDatabaseHelpers()
 const user = useSupabaseUser()
-
-const pagePlanId = computed(() =>
-  isNaN(parseInt(route.params.id as string))
-    ? null
-    : parseInt(route.params.id as string),
-)
 
 const loading = ref(false)
 const newPlan = ref('')
+
+const sortedSiblings = computed(() => plans.data.value
+  .filter(p => p.parent_id === pagePlanId.value)
+  .filter(p => !p.archived)
+  .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0)),
+)
+
+const sortedPlans = computed(() => plans.data.value
+  .filter(p => !p.archived)
+  .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0)),
+)
 
 async function addPlan() {
   if (!user.value) return
   if (!newPlan.value) return
   loading.value = true
+  // const priority = Math.max(0, ...plans.data.value.filter(p => p.parent_id === pagePlanId.value).map(p => p.priority || 0)) + 1
+  let priority: number = 0
+  const above = sortedSiblings.value?.length
+    ? sortedSiblings.value.at(-1)
+    : pagePlan.value
+  const aboveIndex = sortedPlans.value.findIndex((p: Plan) => p.id === above?.id)
+  const below = sortedPlans.value?.[aboveIndex + 1]
+  if (above && below) {
+    priority = ((above.priority ?? 0) + (below.priority ?? 0)) / 2
+  }
+  else if (above) {
+    priority = (above.priority ?? 0) + 1
+  }
+  else if (below) {
+    priority = (below.priority ?? 0) - 1
+  }
+
   const plan: TablesInsert<'plans'> = {
     title: newPlan.value,
     assignee_id: user.value.id,
     parent_id: pagePlanId.value,
-    priority: Math.max(0, ...plans.data.value.filter(p => p.parent_id === pagePlanId.value).map(p => p.priority || 0)) + 1,
+    priority,
   }
   plans
     .create(plan)

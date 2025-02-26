@@ -13,10 +13,27 @@ const props = defineProps<{
 }>()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 
+const sortedPlansList = computed(() => plans.data.value
+  .filter(p => p.parent_id === props.planId)
+  .filter(p => props.showArchived || !p.archived)
+  .toSorted((a, b) => {
+    if (a.archived !== b.archived) {
+      return a.archived ? 1 : -1
+    }
+    return (a.priority ?? 0) - (b.priority ?? 0)
+  }))
+
+const sortedPrioList = computed(() => plans.data.value
+  .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
+  .map(p => p.priority)
+  // make unique:
+  .filter((p, index, arr) => p !== arr.at(index - 1)),
+)
+
 function moveItem(item: MovingItem<Plan>) {
   if (!item.destination) return
   console.log('Moving item:', item)
-  if (item.destination.identifier === 'trashbin') {
+  if (item.destination.identifier === 'Archive Panel') {
     if (item.payload.archived) {
       plans.remove(item.payload.id)
       return
@@ -28,37 +45,30 @@ function moveItem(item: MovingItem<Plan>) {
     const destinationIndex = item.destination.index ?? 0
     if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
     // compute the new priority
-    const aboveItem = (destinationIndex > 0) ? item.destination.listItems!.at(destinationIndex - 1) : undefined
-    const belowItem = (destinationIndex + 1 < item.destination.listItems!.length) ? item.destination.listItems!.at(destinationIndex + 1) : undefined
+    // At the extremeties of the list, the average priority is taken between the ultimate item in the list and the next priority in the database.
+    const aboveItemPriority
+      = (destinationIndex === 0)
+        ? sortedPrioList.value[sortedPrioList.value.findIndex(prio => prio === item.origin?.listItems?.at(0)?.priority) - 1]
+        : item.destination.listItems!.at(destinationIndex - 1)?.priority
+    const belowItemPriority
+      = (destinationIndex + 1 === item.destination.listItems!.length)
+        ? sortedPrioList.value[sortedPrioList.value.findIndex(prio => prio === item.origin?.listItems?.at(-1)?.priority) + 1]
+        : item.destination.listItems!.at(destinationIndex + 1)?.priority
     let newPriority = 0
-    if (aboveItem && belowItem) {
-      newPriority = ((aboveItem.priority ?? 0) + (belowItem.priority ?? 0)) / 2
+    if (aboveItemPriority && belowItemPriority) {
+      newPriority = ((aboveItemPriority ?? 0) + (belowItemPriority ?? 0)) / 2
     }
-    else if (aboveItem) {
-      newPriority = (aboveItem.priority ?? 0) + 1
+    else if (aboveItemPriority) {
+      newPriority = (aboveItemPriority ?? 0) + 1
     }
-    else if (belowItem) {
-      newPriority = (belowItem.priority ?? 0) - 1
+    else if (belowItemPriority) {
+      newPriority = (belowItemPriority ?? 0) - 1
     }
-    console.log('New priority:', newPriority)
     item.payload.priority = newPriority
     plans.update(item.payload.id, { priority: newPriority, parent_id: Number(item.destination.identifier) || null })
       .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))
   }
 }
-
-const plansList = computed(() => plans.data.value
-  .filter(p => props.showArchived || !p.archived)
-  .filter(p => p.parent_id === props.planId)
-  .toSorted((a, b) => {
-    if (a.archived !== b.archived) {
-      return a.archived ? 1 : -1
-    }
-    if (a.done !== b.done) {
-      return a.done ? 1 : -1
-    }
-    return (a.priority ?? 0) - (b.priority ?? 0)
-  }))
 
 const completePlan = async (p: Plan) => {
   await plans.update(p.id, { done: !p.done })
@@ -88,7 +98,7 @@ const plansGroup = 'plansGroup'
 <template>
   <ArrangeableList
     v-slot="{ item }"
-    :list="plansList"
+    :list="sortedPlansList"
     list-key="id"
     :options="{
       hoverClass: 'cursor-grabbing drop-shadow-[0_10px_10px_rgba(0,0,0,1)] scale-105 select-none',
@@ -102,10 +112,15 @@ const plansGroup = 'plansGroup'
     @drop-item="moveItem"
   >
     <Disclosure v-slot="{ open }" ref="disclosures">
-      <div class="flex w-full flex-row items-center">
+      <div
+        class="flex w-full flex-row items-center"
+        :class="[
+          item.done ? 'line-through' : '',
+          item.archived ? 'italic text-slate-400 dark:text-slate-600' : 'text-slate-700 dark:text-slate-200',
+        ]"
+      >
         <div
           class="mr-auto flex select-none items-center font-medium"
-          :class="[item.done ? 'line-through' : '', item.archived ? 'text-gray-400' : 'text-gray-700']"
         >
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
           <DisclosureButton class="flex cursor-pointer">
@@ -115,6 +130,7 @@ const plansGroup = 'plansGroup'
               :class="{
                 'bg-gray-700': totalChildren(item.id),
                 'bg-slate-300': totalChildren(item.id) === 0,
+                'bg-slate-400': item.archived,
               }"
             />
           </DisclosureButton>
@@ -126,13 +142,7 @@ const plansGroup = 'plansGroup'
               @click="archiveRestore(item.id)"
             />
           </UTooltip>
-          <NuxtLink
-            :to="{ name: 'projects-id', params: { id: item.id } }"
-            :class="{
-              'italic text-slate-400 dark:text-slate-600': item.archived,
-              'text-slate-700 dark:text-slate-200': !item.archived,
-            }"
-          >
+          <NuxtLink :to="{ name: 'projects-id', params: { id: item.id } }">
             <span
               :class="
                 totalChildren(item.id) ? 'font-bold' : 'font-normal'
@@ -173,17 +183,14 @@ const plansGroup = 'plansGroup'
               :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
               :color="unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
               :class="{
-                'bg-gray-200 dark:bg-gray-700': !item.done,
-                'bg-gray-400 dark:bg-gray-500': item.done && item.archived,
+                'bg-slate-400 dark:bg-gray-700': !item.done,
+                'bg-slate-300 dark:bg-gray-500': item.done && item.archived,
               }"
               @click="completePlan(item)"
             />
             <UCheckbox
               v-else
               v-model="item.done"
-              on-icon="i-heroicons-check-20-solid"
-              :class="{
-              }"
               @click="completePlan(item)"
             />
           </div>

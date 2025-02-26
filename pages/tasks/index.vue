@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrangeableList, useMovingItem } from 'vue-arrange'
+import { ArrangeableList, useMovingItem, type MovingItem } from 'vue-arrange'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
@@ -21,6 +21,30 @@ const archiveRestore = (id: number) => {
   else {
     markArchiveRestore.value = id
   }
+}
+
+function changePriority(item: MovingItem<Plan>) {
+  if (!item.destination) return
+  console.log('Changing priority of item:', item)
+  const destinationIndex = item.destination.index ?? 0
+  if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
+  // compute the new priority
+  const aboveItem = (destinationIndex > 0) ? item.destination.listItems!.at(destinationIndex - 1) : undefined
+  const belowItem = (destinationIndex + 1 < item.destination.listItems!.length) ? item.destination.listItems!.at(destinationIndex + 1) : undefined
+  let newPriority = 0
+  if (aboveItem && belowItem) {
+    newPriority = ((aboveItem.priority ?? 0) + (belowItem.priority ?? 0)) / 2
+  }
+  else if (aboveItem) {
+    newPriority = (aboveItem.priority ?? 0) + 1
+  }
+  else if (belowItem) {
+    newPriority = (belowItem.priority ?? 0) - 1
+  }
+  console.log('New priority:', newPriority)
+  item.payload.priority = newPriority
+  plans.update(item.payload.id, { priority: newPriority })
+    .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))
 }
 
 const showArchived = ref(false)
@@ -59,6 +83,7 @@ const tasks = computed(() =>
       list-key="id"
       :list="tasks"
       :options="{ handle: true }"
+      @drop-item="changePriority"
     >
       <div class="flex w-full flex-row">
         <!-- handle and title -->
@@ -82,12 +107,12 @@ const tasks = computed(() =>
               'text-slate-700 dark:text-slate-200': !item.archived,
             }"
           >
-            {{ item.title }}
+            {{ item.title }} {{ item.priority }}
           </NuxtLink>
         </div>
         <!-- details -->
         <div v-if="!isMoving(item)" class="flex flex-row">
-          <PlansValidatedInput
+          <DSValidatedInput
             class="mb-1 mr-2  w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
             field="manhours_required"
             input-type="number"
@@ -96,9 +121,6 @@ const tasks = computed(() =>
           <div class="flex w-10 justify-center">
             <UCheckbox
               v-model="item.done"
-              on-icon="i-heroicons-check-20-solid"
-              :class="{
-              }"
               @click="completePlan(item)"
             />
           </div>
