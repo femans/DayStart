@@ -69,7 +69,9 @@ const tasks = computed(() =>
       v-slot="{ item }"
       list-key="id"
       :list="tasks"
-      :options="{ handle: true }"
+      :options="{
+        handle: true,
+      }"
       @drop-item="changePriority"
     >
       <div class="flex w-full flex-row">

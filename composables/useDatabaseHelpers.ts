@@ -94,29 +94,37 @@ export default function useDatabaseHelpers() {
   })
 
   const sortedPrioList = computed(() => plans.data.value
-    .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
-    .map(p => p.priority)
+    .toSorted((a, b) => a.priority - b.priority)
+    .map(p => p.priority),
   // make unique:
-    .filter((p, index, arr) => p !== arr.at(index - 1)),
+    // .filter((p, index, arr) => p !== arr.at(index - 1)),
   )
 
+  /**
+   * calculate a new and pseudo-unique priority for an item
+   */
   const calculatePriority = (aboveItemPriority: number | undefined, belowItemPriority: number | undefined): number => {
-    // edge case: 2 values are equal. Should practically never occur. Solution: Add a random value. Behaviour will be weird but resolves the issue.
-    if (aboveItemPriority === belowItemPriority) return aboveItemPriority ?? 0 + Math.random()
+    let newPriority: number | undefined = undefined
     // normal case: average value
     if (aboveItemPriority !== undefined && belowItemPriority !== undefined) {
-      return (aboveItemPriority + belowItemPriority) / 2
+      newPriority = (aboveItemPriority + belowItemPriority) / 2
     }
     // It may happen that an item is moved to a location where there is a neighbour missing, e.g. top or bottom of the database
     // Then we add/subtract a random number to the priority to the other neighbour.
     // That way we minimize occurrence of duplicates, which would cause the average of 2 priorities be another duplicate.
     else if (aboveItemPriority) {
-      return (aboveItemPriority ?? 0) + Math.random()
+      newPriority = (aboveItemPriority ?? 0) + Math.random()
     }
     else if (belowItemPriority) {
-      return (belowItemPriority ?? 0) - Math.random()
+      newPriority = (belowItemPriority ?? 0) - Math.random()
     }
-    return Math.random()
+    else newPriority = Math.random()
+    if (!sortedPrioList.value.includes(newPriority)) return newPriority
+    // edge case: there is another item with the same priority; take the average of calculated priority with the nearest neighbour
+    const nextPriority = sortedPrioList.value.find(p => p > newPriority)
+    if (nextPriority !== undefined) return (newPriority + nextPriority) / 2
+    // or, if it doesn't exist, just add a random number.
+    return newPriority + Math.random()
   }
 
   /**
@@ -124,9 +132,9 @@ export default function useDatabaseHelpers() {
    * @params list: list of plans, does not yet include the item
    * @returns priority for new item
    */
-  const calculateNewItemPriority = (list: Plan[]): number => {
+  const calculateNewItemPriority = (list: Plan[], parent: Plan | null = pagePlan.value): number => {
     const aboveItemPriority: number = list.length === 0
-      ? pagePlanId.value ?? 0
+      ? parent?.priority ?? 0
       : list.at(-1)!.priority
     const belowItemPriority: number | undefined = sortedPrioList.value.find(prio => prio > aboveItemPriority)
     return calculatePriority(aboveItemPriority, belowItemPriority)
