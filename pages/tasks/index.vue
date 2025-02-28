@@ -4,7 +4,7 @@ import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
 const { isMoving } = useMovingItem()
-const { taskList } = useDatabaseHelpers()
+const { taskList, calculateMovedItemPriority } = useDatabaseHelpers()
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 
@@ -26,22 +26,9 @@ const archiveRestore = (id: number) => {
 function changePriority(item: MovingItem<Plan>) {
   if (!item.destination) return
   console.log('Changing priority of item:', item)
-  const destinationIndex = item.destination.index ?? 0
+  const destinationIndex = item.destination.index ?? -1
   if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
-  // compute the new priority
-  const aboveItem = (destinationIndex > 0) ? item.destination.listItems!.at(destinationIndex - 1) : undefined
-  const belowItem = (destinationIndex + 1 < item.destination.listItems!.length) ? item.destination.listItems!.at(destinationIndex + 1) : undefined
-  let newPriority = 0
-  if (aboveItem && belowItem) {
-    newPriority = ((aboveItem.priority ?? 0) + (belowItem.priority ?? 0)) / 2
-  }
-  else if (aboveItem) {
-    newPriority = (aboveItem.priority ?? 0) + 1
-  }
-  else if (belowItem) {
-    newPriority = (belowItem.priority ?? 0) - 1
-  }
-  console.log('New priority:', newPriority)
+  const newPriority = calculateMovedItemPriority(item.destination.listItems!, destinationIndex)
   item.payload.priority = newPriority
   plans.update(item.payload.id, { priority: newPriority })
     .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))

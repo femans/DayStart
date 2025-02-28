@@ -34,7 +34,7 @@ const finishedChildren = computed(() =>
 <template>
   <DropZone
     v-slot="{ isHovering }"
-    identifier="Archive Panel"
+    identifier="Archive"
     group="plansGroup"
   >
     <UCard

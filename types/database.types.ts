@@ -85,7 +85,7 @@ export type Database = {
           id: number
           manhours_required: number | null
           parent_id: number | null
-          priority: number | null
+          priority: number
           title: string | null
         }
         Insert: {
@@ -102,7 +102,7 @@ export type Database = {
           id?: number
           manhours_required?: number | null
           parent_id?: number | null
-          priority?: number | null
+          priority: number
           title?: string | null
         }
         Update: {
@@ -119,7 +119,7 @@ export type Database = {
           id?: number
           manhours_required?: number | null
           parent_id?: number | null
-          priority?: number | null
+          priority?: number
           title?: string | null
         }
         Relationships: [

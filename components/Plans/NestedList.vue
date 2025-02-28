@@ -6,6 +6,7 @@ import type { Tables } from '~~/types/database.types'
 type Plan = Tables<'plans'>
 
 const { isMoving } = useMovingItem()
+const { calculateMovedItemPriority } = useDatabaseHelpers()
 
 const props = defineProps<{
   planId: number | null
@@ -23,17 +24,10 @@ const sortedPlansList = computed(() => plans.data.value
     return (a.priority ?? 0) - (b.priority ?? 0)
   }))
 
-const sortedPrioList = computed(() => plans.data.value
-  .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
-  .map(p => p.priority)
-  // make unique:
-  .filter((p, index, arr) => p !== arr.at(index - 1)),
-)
-
 function moveItem(item: MovingItem<Plan>) {
   if (!item.destination) return
   console.log('Moving item:', item)
-  if (item.destination.identifier === 'Archive Panel') {
+  if (item.destination.identifier === 'Archive') {
     if (item.payload.archived) {
       plans.remove(item.payload.id)
       return
@@ -44,26 +38,7 @@ function moveItem(item: MovingItem<Plan>) {
   if (item.destination.group === plansGroup) {
     const destinationIndex = item.destination.index ?? 0
     if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
-    // compute the new priority
-    // At the extremeties of the list, the average priority is taken between the ultimate item in the list and the next priority in the database.
-    const aboveItemPriority
-      = (destinationIndex === 0)
-        ? sortedPrioList.value[sortedPrioList.value.findIndex(prio => prio === item.origin?.listItems?.at(0)?.priority) - 1]
-        : item.destination.listItems!.at(destinationIndex - 1)?.priority
-    const belowItemPriority
-      = (destinationIndex + 1 === item.destination.listItems!.length)
-        ? sortedPrioList.value[sortedPrioList.value.findIndex(prio => prio === item.origin?.listItems?.at(-1)?.priority) + 1]
-        : item.destination.listItems!.at(destinationIndex + 1)?.priority
-    let newPriority = 0
-    if (aboveItemPriority && belowItemPriority) {
-      newPriority = ((aboveItemPriority ?? 0) + (belowItemPriority ?? 0)) / 2
-    }
-    else if (aboveItemPriority) {
-      newPriority = (aboveItemPriority ?? 0) + 1
-    }
-    else if (belowItemPriority) {
-      newPriority = (belowItemPriority ?? 0) - 1
-    }
+    const newPriority = calculateMovedItemPriority(item.destination.listItems!, destinationIndex)
     item.payload.priority = newPriority
     plans.update(item.payload.id, { priority: newPriority, parent_id: Number(item.destination.identifier) || null })
       .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))

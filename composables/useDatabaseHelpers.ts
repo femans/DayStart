@@ -93,5 +93,78 @@ export default function useDatabaseHelpers() {
     })
   })
 
-  return { plans, pagePlan, pagePlanId, updatePlan, updatePagePlan, archiveDoneChildren, taskList, planChildrenMap }
+  const sortedPrioList = computed(() => plans.data.value
+    .toSorted((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
+    .map(p => p.priority)
+  // make unique:
+    .filter((p, index, arr) => p !== arr.at(index - 1)),
+  )
+
+  const calculatePriority = (aboveItemPriority: number | undefined, belowItemPriority: number | undefined): number => {
+    // edge case: 2 values are equal. Should practically never occur. Solution: Add a random value. Behaviour will be weird but resolves the issue.
+    if (aboveItemPriority === belowItemPriority) return aboveItemPriority ?? 0 + Math.random()
+    // normal case: average value
+    if (aboveItemPriority !== undefined && belowItemPriority !== undefined) {
+      return (aboveItemPriority + belowItemPriority) / 2
+    }
+    // It may happen that an item is moved to a location where there is a neighbour missing, e.g. top or bottom of the database
+    // Then we add/subtract a random number to the priority to the other neighbour.
+    // That way we minimize occurrence of duplicates, which would cause the average of 2 priorities be another duplicate.
+    else if (aboveItemPriority) {
+      return (aboveItemPriority ?? 0) + Math.random()
+    }
+    else if (belowItemPriority) {
+      return (belowItemPriority ?? 0) - Math.random()
+    }
+    return Math.random()
+  }
+
+  /**
+   * calculate the priority of a new item place at the end of a list.
+   * @params list: list of plans, does not yet include the item
+   * @returns priority for new item
+   */
+  const calculateNewItemPriority = (list: Plan[]): number => {
+    const aboveItemPriority: number = list.length === 0
+      ? pagePlanId.value ?? 0
+      : list.at(-1)!.priority
+    const belowItemPriority: number | undefined = sortedPrioList.value.find(prio => prio > aboveItemPriority)
+    return calculatePriority(aboveItemPriority, belowItemPriority)
+  }
+
+  /**
+   * calculate the new priority of an item moved into a list based on surrounding items.
+   * @params list: the list with the item already in it
+   * @params index: the index of the item in the list
+   * @returns new priority for the moved item
+   */
+  const calculateMovedItemPriority = (list: Plan[], index: number): number => {
+    // If the item is moved to an empty list, don't change the priority
+    if (list.length <= 1) return list[index].priority
+
+    // If the item is moved to an already populated list, make the priority the average of the immediate neighbours
+    // At the extremeties of the list, the average priority is taken between the neighbour in the list and the next existing priority in the database.
+    const aboveItemPriority = (index > 0)
+      ? list.at(index - 1)!.priority
+      : sortedPrioList.value.findLast(prio => prio < list[1].priority)
+
+    const belowItemPriority = (index < list.length - 1)
+      ? list.at(index + 1)?.priority
+      : sortedPrioList.value.find(prio => prio > list.at(index - 1)!.priority)
+
+    return calculatePriority(aboveItemPriority, belowItemPriority)
+  }
+
+  return {
+    plans,
+    pagePlan,
+    pagePlanId,
+    updatePlan,
+    updatePagePlan,
+    archiveDoneChildren,
+    taskList,
+    planChildrenMap,
+    calculateNewItemPriority,
+    calculateMovedItemPriority,
+  }
 }
