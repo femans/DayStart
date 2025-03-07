@@ -64,7 +64,6 @@ export default function useDatabaseHelpers() {
    */
   const taskList = computed(() => {
     const activeList: Plan[] = []
-
     function hasNoArchivedOrDoneAncestors(plan: Plan): boolean {
       while (plan) {
         const parent = plans.data.value.find(p => p.id === plan.parent_id)
@@ -81,16 +80,7 @@ export default function useDatabaseHelpers() {
       }
     }
 
-    return activeList.toSorted((a, b) => {
-      if (a.archived !== b.archived) {
-        return a.archived ? 1 : -1
-      }
-      if (a.done !== b.done) {
-        return a.done ? 1 : -1
-      }
-      if (a.done && b.done) return new Date(b.done_date ?? 0).getTime() - new Date(a.done_date ?? 0).getTime()
-      return (a.priority ?? 0) - (b.priority ?? 0)
-    })
+    return activeList.toSorted((a, b) => (a.priority - b.priority))
   })
 
   const sortedPrioList = computed(() => plans.data.value

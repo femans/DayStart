@@ -5,11 +5,14 @@ import type { Tables } from '~~/types/database.types'
 type Plan = Tables<'plans'>
 const { isMoving } = useMovingItem()
 const { taskList, calculateMovedItemPriority } = useDatabaseHelpers()
+const { getTrail } = useBreadCrumbs()
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 
-const completePlan = async (p: Plan) => {
+const checkDone = async (p: Plan) => {
+  recentlyChecked.value.add(p.id)
   await plans.update(p.id, { done: !p.done })
+    .then(() => setTimeout(() => recentlyChecked.value.delete(p.id), 10000))
 }
 
 const markArchiveRestore = ref<number | null>(null)
@@ -25,20 +28,27 @@ const archiveRestore = (id: number) => {
 
 function changePriority(item: MovingItem<Plan>) {
   if (!item.destination) return
-  console.log('Changing priority of item:', item)
   const destinationIndex = item.destination.index ?? -1
   if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
   const newPriority = calculateMovedItemPriority(item.destination.listItems!, destinationIndex)
   item.payload.priority = newPriority
   plans.update(item.payload.id, { priority: newPriority })
-    .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))
+    .then(() => {
+      console.log('Item priority updated successfully', plans.data.value.find(p => p.id === item.payload.id),
+      )
+    })
 }
 
 const showArchived = ref(false)
 const showDone = ref(false)
-const tasks = computed(() =>
-  taskList.value.filter(item => item.done === showDone.value).filter(item => !item.archived || showArchived.value),
-)
+
+const recentlyChecked = ref(new Set<number>())
+
+const tasks = computed(() => {
+  return taskList.value
+    .filter(item => item.done === showDone.value || recentlyChecked.value.has(item.id))
+    .filter(item => !item.archived || showArchived.value)
+})
 </script>
 
 <template>
@@ -67,10 +77,10 @@ const tasks = computed(() =>
     </div>
     <ArrangeableList
       v-slot="{ item }"
-      list-key="id"
       :list="tasks"
       :options="{
         handle: true,
+        hoverClass: 'bg-lime-200',
       }"
       @drop-item="changePriority"
     >
@@ -89,6 +99,20 @@ const tasks = computed(() =>
               @click="archiveRestore(item.id)"
             />
           </UTooltip>
+          <div
+            v-for="breadcrumb, i in [0, -3, -2].map(n => getTrail(item.id).at(n)).filter((p, i, a) => !!p && p !== a.at(i - 1))"
+            :key="i"
+            class="flex flex-row items-center text-slate-400"
+          >
+            <NuxtLink
+              :to="{ name: 'projects-id', params: { id: breadcrumb!.id } }"
+            >
+              {{ breadcrumb!.title }}
+            </NuxtLink>
+            <UIcon
+              name="i-heroicons-chevron-right-16-solid"
+            />
+          </div>
           <NuxtLink
             :to="{ name: 'projects-id', params: { id: item.id } }"
             :class="{
@@ -96,7 +120,7 @@ const tasks = computed(() =>
               'text-slate-700 dark:text-slate-200': !item.archived,
             }"
           >
-            {{ item.title }} {{ item.priority }}
+            {{ item.title }}
           </NuxtLink>
         </div>
         <!-- details -->
@@ -110,7 +134,7 @@ const tasks = computed(() =>
           <div class="flex w-10 justify-center">
             <UCheckbox
               v-model="item.done"
-              @click="completePlan(item)"
+              @click="checkDone(item)"
             />
           </div>
         </div>
