@@ -10,7 +10,6 @@ defineProps <{
   field: keyof Plan
   inputType: 'number' | 'text'
 }>()
-console.log(pagePlan.value.id)
 </script>
 
 <template>
@@ -23,7 +22,7 @@ console.log(pagePlan.value.id)
       v-bind="$attrs"
       :field="field"
       :input-type="inputType"
-      class="ml-auto rounded-md border border-slate-300 p-1 text-right text-sm"
+      class="ml-auto rounded-md border border-gray-200 p-1 text-right text-sm dark:border-gray-800"
     />
   </div>
 </template>

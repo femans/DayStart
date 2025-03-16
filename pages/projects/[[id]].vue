@@ -2,8 +2,9 @@
 import { PlansBreadCrumbs } from '#components'
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { pagePlanId, calculateNewItemPriority } = useDatabaseHelpers()
+const { pagePlanId, calculateNewItemPriority, pagePlan } = useDatabaseHelpers()
 const user = useSupabaseUser()
+const route = useRoute()
 
 const loading = ref(false)
 const newPlan = ref('')
@@ -48,8 +49,11 @@ const showArchived = ref(false)
       :plan="pagePlanId"
     />
     <UCard class="w-full overflow-hidden px-6 py-2">
-      <PlansHeader />
-      <form class="my-2 flex w-full gap-2" @submit.prevent="addPlan">
+      <!-- Header section -->
+      <NuxtPage v-if="route.params.tab" />
+      <PlansHeaderOverview v-else />
+      <!-- Subplans listing -->
+      <form v-if="!pagePlan.archived" class="my-2 flex w-full gap-2" @submit.prevent="addPlan">
         <UInput
           v-model="newPlan"
           :loading="loading"

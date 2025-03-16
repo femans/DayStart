@@ -2,35 +2,8 @@
 import { UCheckbox } from '#components'
 
 const route = useRoute()
-const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { pagePlanId, pagePlan, updatePagePlan } = useDatabaseHelpers()
-
-const unfinishedChildren = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
-)
-
-const children = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived),
-)
-
-const totalChildren = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived).length,
-)
-
-const calculatedTimeRequired = computed(() =>
-  children.value.reduce((
-    total,
-    plan,
-  ) => total + (plan.manhours_required || 0), 0),
-)
-
-const finishedTaskTimeSpent = computed(() =>
-  calculatedTimeRequired.value - unfinishedChildren.value.reduce((
-    total,
-    plan,
-  ) => total + (plan.manhours_required || 0), 0),
-)
-
+const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
+const tabs = ['overview', 'scheduling', 'budget']
 const titleArea = ref<HTMLElement | null>(null)
 
 watch(() => route.params, async () => {
@@ -43,88 +16,60 @@ watch(() => route.params, async () => {
 </script>
 
 <template>
-  <!-- Title -->
-  <textarea
-    v-if="pagePlanId !== null"
-    ref="titleArea"
-    v-model="pagePlan.title"
-    name="title"
-    class="h-auto w-full overflow-hidden text-3xl font-bold"
-    :class="{
-      'italic text-slate-400': pagePlan.archived,
-      'text-slate-900 dark:text-slate-100': !pagePlan.archived,
-    }"
-    rows="1"
-    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-    @change="updatePagePlan({ title: ($event.target as HTMLTextAreaElement).value })"
-    @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
-  />
-  <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
-    <UIcon name="i-heroicons-home" />
-    Home
-  </h1>
-  <!-- plan number and checkboxes -->
-  <div v-if="pagePlanId !== null" class="mb-1 flex w-full flex-row items-center">
-    <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
-    <span v-if="pagePlan" class="mr-auto text-sm text-slate-400">
-      {{ pagePlan.archived ? `${pagePlan.id} ARCHIVED` : pagePlan.id }}
-    </span>
-    <UCheckbox
-      v-model="pagePlan.done"
-      label="Done"
-      class="mx-1 rounded border px-1"
-      @change="done => updatePagePlan({ done })"
+  <div class="relative">
+    <!-- Title -->
+    <textarea
+      v-if="pagePlanId !== null"
+      ref="titleArea"
+      v-model="pagePlan.title"
+      :disabled="pagePlan.archived"
+      name="title"
+      class="h-auto w-full overflow-hidden text-3xl font-bold"
+      :class="{
+        'italic text-slate-400': pagePlan.archived,
+        'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+      }"
+      rows="1"
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+      @change="updatePagePlan({ title: ($event.target as HTMLTextAreaElement).value })"
+      @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
     />
-    <UCheckbox
-      v-model="pagePlan.archived"
-      label="Archived"
-      class="mx-1 rounded border px-1"
-      @change="archived => updatePagePlan({ archived })"
-    />
+    <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
+      <UIcon name="i-heroicons-home" />
+      Home
+    </h1>
+    <!-- tab row -->
+    <div class="mb-1 flex w-full flex-row items-center">
+      <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
+      <span v-if="pagePlan" class="text-sm text-slate-400">
+        {{ pagePlan.id }}
+      </span>
+      <NuxtLink
+        v-for="tabName in tabs"
+        :key="tabName"
+        class="-mb-1 ml-1 rounded-t-lg border-b-0 border-gray-200 p-1  dark:border-gray-800 dark:bg-gray-900"
+        :class="tabName === route.params.tab || (tabName === tabs[0] && !route.params.tab) ? 'z-20 border-2 bg-white' : 'z-0 border bg-gray-200 dark:bg-gray-900'"
+        :to="{ name: 'projects-id-tab', params: { id: pagePlanId, tab: tabName } }"
+      >
+        {{ tabName }}
+      </NuxtLink>
+      <span class="ml-auto">Flags:</span>
+      <UCheckbox
+        v-model="pagePlan.done"
+        label="Done"
+        class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
+        @change="done => updatePagePlan({ done })"
+      />
+      <UCheckbox
+        v-model="pagePlan.archived"
+        label="Archived"
+        class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
+        @change="archived => updatePagePlan({ archived })"
+      />
+    </div>
+    <!-- overview panel -->
+    <UCard class="relative z-10">
+      <slot />
+    </UCard>
   </div>
-  <!-- overview panel -->
-  <UCard v-if="pagePlanId">
-    <UMeter label="Progress" indicator :value=" finishedTaskTimeSpent / (calculatedTimeRequired || 1) * 100" />
-    <PlansHeaderInput
-      :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
-      :class="{
-        'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
-      }"
-      field="manhours_required"
-      :placeholder="calculatedTimeRequired"
-      input-type="number"
-    />
-    <div
-      v-if="children.length"
-      class="m-1 flex w-full text-sm"
-    >
-      <span>Calculated time required for subtasks: </span>
-      <span
-        class="ml-auto mr-2 p-1"
-      >
-        {{ calculatedTimeRequired }}h
-      </span>
-    </div>
-    <div
-      v-if="children.length && pagePlan.manhours_required !== null"
-      class="m-1 flex w-full text-sm"
-      :class="{
-        'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
-      }"
-    >
-      <span v-if="pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired)">Overtime:</span>
-      <span v-else>Margin:</span>
-      <span
-        class="ml-auto mr-2 p-1"
-      >
-        {{ Math.abs((pagePlan.manhours_required ?? 0) - calculatedTimeRequired) }}h / {{ Math.abs(pagePlan.manhours_required ? ((pagePlan.manhours_required) - calculatedTimeRequired) / pagePlan.manhours_required * 100 : 0).toFixed() }}%
-      </span>
-    </div>
-    <UDivider />
-    <PlansHeaderInput
-      label="Budget:"
-      field="budget"
-      input-type="number"
-    />
-  </UCard>
 </template>

@@ -79,6 +79,7 @@ const tasks = computed(() => {
       v-slot="{ item }"
       :list="tasks"
       :options="{
+        listTransition: {},
         handle: true,
         hoverClass: 'bg-lime-200',
       }"
