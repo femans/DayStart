@@ -3,7 +3,7 @@ import { UCheckbox } from '#components'
 
 const route = useRoute()
 const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
-const tabs = ['overview', 'scheduling', 'budget']
+const tabs = ['overview', 'planning', 'budget']
 const titleArea = ref<HTMLElement | null>(null)
 
 watch(() => route.params, async () => {
@@ -47,7 +47,7 @@ watch(() => route.params, async () => {
       <NuxtLink
         v-for="tabName in tabs"
         :key="tabName"
-        class="-mb-1 ml-1 rounded-t-lg border-b-0 border-gray-200 p-1  dark:border-gray-800 dark:bg-gray-900"
+        class="-mb-1 ml-1 rounded-t-md border-b-0 border-gray-200 p-1 px-2  dark:border-gray-800 dark:bg-gray-900"
         :class="tabName === route.params.tab || (tabName === tabs[0] && !route.params.tab) ? 'z-20 border-2 bg-white' : 'z-0 border bg-gray-200 dark:bg-gray-900'"
         :to="{ name: 'projects-id-tab', params: { id: pagePlanId, tab: tabName } }"
       >

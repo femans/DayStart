@@ -13,6 +13,7 @@ const props = defineProps<{
   showArchived: boolean
 }>()
 const plans = useTable('plans', { verbose: true, autoFetch: true })
+const { totalChildren, finishedChildren, unfinishedChildren, redFlag, completePlan, placeholder } = usePlanList()
 
 const sortedPlansList = computed(() => plans.data.value
   .filter(p => p.parent_id === props.planId)
@@ -44,17 +45,6 @@ function moveItem(item: MovingItem<Plan>) {
       .then(() => console.log('Item moved successfully', plans.data.value.find(p => p.id === item.payload.id)))
   }
 }
-
-const completePlan = async (p: Plan) => {
-  await plans.update(p.id, { done: !p.done })
-}
-
-const finishedChildren = (itemId: number) =>
-  plans.data.value.filter(p => p.parent_id === itemId && p.done && !p.archived).length
-const unfinishedChildren = (itemId: number) =>
-  plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
-const totalChildren = (itemId: number) =>
-  plans.data.value.filter(p => p.parent_id === itemId && !p.archived).length
 
 const markArchiveRestore = ref<number | null>(null)
 const archiveRestore = (id: number) => {
@@ -141,10 +131,16 @@ const plansGroup = 'plansGroup'
         </div>
         <div v-if="!isMoving(item)" class="flex flex-row items-center">
           <DSValidatedInput
-            class="mb-1 mr-2 w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
+            class="mb-1 mr-2 w-8 border-b px-1 text-right text-sm outline-none "
+            :class="{
+              'border-b-4 border-double border-gray-500 dark:border-gray-300': open && totalChildren(item.id),
+              'border-solid border-gray-300 dark:border-gray-700': !open,
+              'border-b-red-500 text-red-500': redFlag(item),
+            }"
             field="manhours_required"
             input-type="number"
             :plan="item"
+            :placeholder="placeholder(item)"
           />
           <div class="flex w-10 justify-center self-center">
             <UToggle
@@ -174,7 +170,7 @@ const plansGroup = 'plansGroup'
       <DisclosurePanel class="w-full">
         <PlansNestedList
           :plan-id="item.id"
-          class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-700"
+          class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-300"
           :show-archived="showArchived"
         />
       </DisclosurePanel>

@@ -62,12 +62,12 @@ const showArchived = ref(false)
           variant="outline"
           type="text"
           name="newPlan"
-          placeholder="Type something"
+          placeholder="Type here to make a new task/subproject."
           autofocus
           autocomplete="off"
         />
         <UTooltip
-          text="Add new plan"
+          text="Add new task/subproject"
           col
           :shortcuts="['⤶']"
           :popper="{ arrow: true }"
@@ -79,7 +79,7 @@ const showArchived = ref(false)
       </form>
       <div class="flex w-full select-none flex-row border-b dark:border-black">
         <div class="mr-auto flex items-center">
-          Projects: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived && plans.data.value.some(q => q.parent_id === p.id && !q.archived)).length }};
+          Subprojects: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived && plans.data.value.some(q => q.parent_id === p.id && !q.archived)).length }};
           Tasks: {{ plans.data.value.filter(p => p.parent_id === pagePlanId && !p.archived && !plans.data.value.some(q => q.parent_id === p.id && !q.archived)).length }}
         </div>
         <div class="flex w-10 justify-center bg-sky-100 p-1 text-xs">

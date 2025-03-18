@@ -1,6 +1,6 @@
 <script setup lang=ts>
 const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { pagePlanId, pagePlan } = useDatabaseHelpers()
+const { pagePlanId, pagePlan, updatePagePlan } = useDatabaseHelpers()
 
 const unfinishedChildren = computed(() =>
   plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
@@ -31,6 +31,24 @@ const finishedTaskTimeSpent = computed(() =>
 
 <template>
   <PlansHeader tab="overview">
+    <textarea
+      v-if="pagePlanId !== null"
+      ref="dodArea"
+      v-model="pagePlan.definition_of_done"
+      :disabled="pagePlan.archived"
+      name="dod"
+      class="h-auto w-full overflow-hidden rounded-md border p-1"
+      placeholder="Short description of done:&#10;Criteria to meet before checking off this project/task."
+      :class="{
+        'italic text-slate-400': pagePlan.archived,
+        'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+      }"
+      rows="3"
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+      @change="updatePagePlan({ definition_of_done: ($event.target as HTMLTextAreaElement).value })"
+      @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
+    />
+
     <UDivider />
     <UMeter label="Progress" indicator :value=" finishedTaskTimeSpent / (calculatedTimeRequired || 1) * 100" />
     <PlansHeaderInput

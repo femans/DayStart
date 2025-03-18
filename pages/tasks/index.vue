@@ -8,6 +8,7 @@ const { taskList, calculateMovedItemPriority } = useDatabaseHelpers()
 const { getTrail } = useBreadCrumbs()
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
+const { placeholder } = usePlanList()
 
 const checkDone = async (p: Plan) => {
   recentlyChecked.value.add(p.id)
@@ -131,6 +132,7 @@ const tasks = computed(() => {
             field="manhours_required"
             input-type="number"
             :plan="item"
+            :placeholder="placeholder(item)"
           />
           <div class="flex w-10 justify-center">
             <UCheckbox
