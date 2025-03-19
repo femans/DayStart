@@ -62,7 +62,7 @@ const showArchived = ref(false)
           variant="outline"
           type="text"
           name="newPlan"
-          placeholder="Type here to make a new task/subproject."
+          placeholder="Type something here to make a new task/subproject."
           autofocus
           autocomplete="off"
         />

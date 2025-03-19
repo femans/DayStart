@@ -32,11 +32,11 @@ export const usePlanList = () => {
     if (parent) {
       if (redFlag(parent)) return '!'
       const unestimatedSiblings = plans.data.value.filter(p => p.parent_id === parent.id && !p.done && !p.archived && p.manhours_required === null).length
-      const doneHoursSpent = plans.data.value
-        .filter(p => p.parent_id === parent.id && p.done && !p.archived && p.manhours_required)
+      const countedHours = plans.data.value
+        .filter(p => p.parent_id === parent.id && !p.archived && p.manhours_required)
         .reduce((total, plan) => total + plan.manhours_required!, 0)
       return unestimatedSiblings
-        ? `(${parent.manhours_required ? ((parent.manhours_required - doneHoursSpent) / unestimatedSiblings).toFixed(1).replace(/\.0$/, '') : '0'})`
+        ? `(${parent.manhours_required ? ((parent.manhours_required - countedHours) / unestimatedSiblings).toFixed(1).replace(/\.0$/, '') : '0'})`
         : 'err'
     }
     else if (totalChildren(item.id)) {

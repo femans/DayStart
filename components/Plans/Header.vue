@@ -18,26 +18,33 @@ watch(() => route.params, async () => {
 <template>
   <div class="relative">
     <!-- Title -->
-    <textarea
-      v-if="pagePlanId !== null"
-      ref="titleArea"
-      v-model="pagePlan.title"
-      :disabled="pagePlan.archived"
-      name="title"
-      class="h-auto w-full overflow-hidden text-3xl font-bold"
-      :class="{
-        'italic text-slate-400': pagePlan.archived,
-        'text-slate-900 dark:text-slate-100': !pagePlan.archived,
-      }"
-      rows="1"
-      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-      @change="updatePagePlan({ title: ($event.target as HTMLTextAreaElement).value })"
-      @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
-    />
-    <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
-      <UIcon name="i-heroicons-home" />
-      Home
-    </h1>
+    <div class="flex w-full flex-row">
+      <textarea
+        v-if="pagePlanId !== null"
+        ref="titleArea"
+        v-model="pagePlan.title"
+        :disabled="pagePlan.archived"
+        name="title"
+        class="mr-auto h-auto w-full overflow-hidden text-3xl font-bold"
+        :class="{
+          'italic text-slate-400': pagePlan.archived,
+          'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+        }"
+        rows="1"
+        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+        @change="updatePagePlan({ title: ($event.target as HTMLTextAreaElement).value })"
+        @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
+      />
+      <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
+        <UIcon name="i-heroicons-home" />
+        Home
+      </h1>
+      <div
+        class="flex size-10 items-center justify-center rounded-full bg-green-500"
+      >
+        <UIcon v-if="pagePlan.done" name="i-heroicons-check-20-solid" class="text-blue size-8 bg-white" />
+      </div>
+    </div>
     <!-- tab row -->
     <div class="mb-1 flex w-full flex-row items-center">
       <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />

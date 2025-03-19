@@ -48,17 +48,18 @@ const finishedTaskTimeSpent = computed(() =>
       @change="updatePagePlan({ definition_of_done: ($event.target as HTMLTextAreaElement).value })"
       @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
     />
-
     <UDivider />
     <UMeter label="Progress" indicator :value=" finishedTaskTimeSpent / (calculatedTimeRequired || 1) * 100" />
     <PlansHeaderInput
       :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
       :class="{
         'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
+        'italic text-slate-400': pagePlan.archived,
       }"
       field="manhours_required"
       :placeholder="calculatedTimeRequired"
       input-type="number"
+      :disabled="pagePlan.archived"
     />
     <div
       v-if="children.length"
@@ -91,6 +92,10 @@ const finishedTaskTimeSpent = computed(() =>
       label="Budget:"
       field="budget"
       input-type="number"
+      :class="{
+        'italic text-slate-400': pagePlan.archived,
+      }"
+      :disabled="pagePlan.archived"
     />
   </PlansHeader>
 </template>
