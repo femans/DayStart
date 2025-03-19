@@ -3,7 +3,9 @@ import { UCheckbox } from '#components'
 
 const route = useRoute()
 const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
-const tabs = ['overview', 'planning', 'budget']
+const { finishedChildren, unfinishedChildren } = usePlanList()
+
+const tabs = ['overview', 'planning', 'tracking', 'budget', 'expenses']
 const titleArea = ref<HTMLElement | null>(null)
 
 watch(() => route.params, async () => {
@@ -40,9 +42,14 @@ watch(() => route.params, async () => {
         Home
       </h1>
       <div
-        class="flex size-10 items-center justify-center rounded-full bg-green-500"
+        v-if="pagePlan.done || (finishedChildren(pagePlanId) && !unfinishedChildren(pagePlanId))"
+        class="flex size-10 min-w-10 items-center justify-center rounded-full "
+        :class="{
+          'bg-green-500': pagePlan.done,
+          'bg-gray-300': !pagePlan.done,
+        }"
       >
-        <UIcon v-if="pagePlan.done" name="i-heroicons-check-20-solid" class="text-blue size-8 bg-white" />
+        <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
       </div>
     </div>
     <!-- tab row -->

@@ -9,11 +9,11 @@ export const usePlanList = () => {
     await plans.update(p.id, { done: !p.done })
   }
 
-  const finishedChildren = (itemId: number) =>
+  const finishedChildren = (itemId: number | null): number =>
     plans.data.value.filter(p => p.parent_id === itemId && p.done && !p.archived).length
-  const unfinishedChildren = (itemId: number) =>
+  const unfinishedChildren = (itemId: number | null): number | null =>
     plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
-  const totalChildren = (itemId: number) =>
+  const totalChildren = (itemId: number | null) =>
     plans.data.value.filter(p => p.parent_id === itemId && !p.archived).length
   const calculatedTimeRequired = (itemId: number): number =>
     plans.data.value.filter(p => p.parent_id === itemId && !p.archived).reduce((

@@ -168,7 +168,7 @@ const plansGroup = 'plansGroup'
         </div>
       </div>
       <DisclosurePanel class="w-full">
-        <PlansNestedList
+        <PlansListContents
           :plan-id="item.id"
           class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-300"
           :show-archived="showArchived"
