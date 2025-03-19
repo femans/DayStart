@@ -143,7 +143,7 @@ const plansGroup = 'plansGroup'
             :placeholder="placeholder(item)"
           />
           <div class="flex w-10 justify-center self-center">
-            <UToggle
+            <USwitch
               v-if="totalChildren(item.id)"
               v-model="item.done"
               :on-icon="

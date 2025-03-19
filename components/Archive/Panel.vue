@@ -64,7 +64,7 @@ const finishedChildren = computed(() =>
           <UIcon name="i-heroicons-exclamation-triangle" />
           This action is irreversible
         </span>
-        <UTooltip :popper="{ arrow: true, placement: 'right' }" :prevent="isHovering" text="Toggle to show archived items">
+        <UTooltip :prevent="isHovering" text="Toggle to show archived items">
           <div class="flex items-center">
             <UIcon
               class="transition-all "
@@ -76,7 +76,7 @@ const finishedChildren = computed(() =>
               }"
               :name="movingItem?.payload.archived ? 'i-heroicons-trash' : (isHovering ? 'i-heroicons-archive-box-arrow-down' : 'i-heroicons-archive-box')"
             />
-            <UToggle
+            <USwitch
               v-if="!movingItem"
               :model-value="showArchived"
               on-icon="i-heroicons-eye"
@@ -90,7 +90,6 @@ const finishedChildren = computed(() =>
           class="ml-auto hover:text-red-500 hover:ring-red-400"
           variant="solid"
           size="xs"
-          color="gray"
           @click="archiveDoneChildren"
         >
           Archive all done tasks/projects

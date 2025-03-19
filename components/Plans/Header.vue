@@ -7,6 +7,7 @@ const { finishedChildren, unfinishedChildren } = usePlanList()
 
 const tabs = ['overview', 'planning', 'tracking', 'budget', 'expenses']
 const titleArea = ref<HTMLElement | null>(null)
+const stopwatch = ref<HTMLElement>()
 
 watch(() => route.params, async () => {
   await nextTick()
@@ -15,6 +16,8 @@ watch(() => route.params, async () => {
     titleArea.value.style.height = `${titleArea.value.scrollHeight}px`
   }
 })
+
+
 </script>
 
 <template>
@@ -50,6 +53,15 @@ watch(() => route.params, async () => {
         }"
       >
         <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
+      </div>
+      <div
+      ref="stopwatch"
+        class="relative flex size-10 min-w-10 cursor-pointer items-center justify-center rounded-full text-5xl"
+      >
+        <UIcon name="i-heroicons-clock" class="size-8 bg-gray-700 stopwatch" />
+        <!-- <div class="stopwatch ">
+          ⏱️
+        </div> -->
       </div>
     </div>
     <!-- tab row -->
@@ -87,3 +99,14 @@ watch(() => route.params, async () => {
     </UCard>
   </div>
 </template>
+
+<style scoped>
+.stopwatch {
+  animation: rotateStopwatch 3s linear infinite;
+}
+
+@keyframes rotateStopwatch {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg);}
+}
+</style>

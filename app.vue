@@ -13,10 +13,12 @@ subscribe()
 </script>
 
 <template>
-  <Title>DayStart.IO</Title>
-  <AppHeader />
-  <NuxtPage
-    class="mx-auto flex min-w-min max-w-4xl items-center justify-center sm:px-6 lg:px-8"
-    page-key="nuxt-page"
-  />
+  <UApp>
+    <Title>DayStart.IO</Title>
+    <AppHeader />
+    <NuxtPage
+      class="mx-auto flex min-w-min max-w-4xl items-center justify-center sm:px-6 lg:px-8"
+      page-key="nuxt-page"
+    />
+  </UApp>
 </template>
