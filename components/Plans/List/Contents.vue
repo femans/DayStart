@@ -146,17 +146,15 @@ const plansGroup = 'plansGroup'
             <USwitch
               v-if="totalChildren(item.id)"
               v-model="item.done"
-              :on-icon="
+              :checked-icon="
                 unfinishedChildren(item.id)
                   ? 'i-heroicons-hand-raised-solid'
                   : 'i-heroicons-check-20-solid'
               "
-              :off-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
-              :color="unfinishedChildren(item.id) && item.done ? 'red' : 'primary'"
-              :class="{
-                'bg-slate-400 dark:bg-gray-700': !item.done,
-                'bg-slate-300 dark:bg-gray-500': item.done && item.archived,
-              }"
+              :unchecked-icon="!unfinishedChildren(item.id) && finishedChildren(item.id) ? 'i-heroicons-check-20-solid' : ''"
+              :color="
+                (unfinishedChildren(item.id) && item.done && !item.archived) ? 'error' : (!item.archived && item.done ? 'primary' : 'neutral')
+              "
               @click="completePlan(item)"
             />
             <UCheckbox

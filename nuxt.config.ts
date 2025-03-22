@@ -10,7 +10,7 @@ export default defineNuxtConfig({
     },
   ],
   devtools: { enabled: true },
-  css: ['vue-arrange/dist/vue-arrange.css', '~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', 'vue-arrange/dist/vue-arrange.css'],
   router: {
     options: {
       strict: false, // Allows reusing components with dynamic params

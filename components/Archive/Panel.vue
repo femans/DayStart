@@ -79,8 +79,8 @@ const finishedChildren = computed(() =>
             <USwitch
               v-if="!movingItem"
               :model-value="showArchived"
-              on-icon="i-heroicons-eye"
-              off-icon="i-heroicons-eye-slash"
+              checked-icon="i-heroicons-eye"
+              unchecked-icon="i-heroicons-eye-slash"
               class="m-1"
             />
           </div>

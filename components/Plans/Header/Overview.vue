@@ -1,4 +1,6 @@
 <script setup lang=ts>
+import { USeparator } from '#components'
+
 const plans = useTable('plans', { verbose: true, autoFetch: true })
 const { pagePlanId, pagePlan, updatePagePlan } = useDatabaseHelpers()
 
@@ -27,6 +29,8 @@ const finishedTaskTimeSpent = computed(() =>
     plan,
   ) => total + (plan.manhours_required || 0), 0),
 )
+
+const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeRequired.value || 1) * 100)
 </script>
 
 <template>
@@ -48,8 +52,8 @@ const finishedTaskTimeSpent = computed(() =>
       @change="updatePagePlan({ definition_of_done: ($event.target as HTMLTextAreaElement).value })"
       @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
     />
-    <UDivider />
-    <UMeter label="Progress" indicator :value=" finishedTaskTimeSpent / (calculatedTimeRequired || 1) * 100" />
+    <USeparator />
+    <UProgress v-model="progress" indicator />
     <PlansHeaderInput
       :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
       :class="{
@@ -87,7 +91,7 @@ const finishedTaskTimeSpent = computed(() =>
         {{ Math.abs((pagePlan.manhours_required ?? 0) - calculatedTimeRequired) }}h / {{ Math.abs(pagePlan.manhours_required ? ((pagePlan.manhours_required) - calculatedTimeRequired) / pagePlan.manhours_required * 100 : 0).toFixed() }}%
       </span>
     </div>
-    <UDivider />
+    <USeparator />
     <PlansHeaderInput
       label="Budget:"
       field="budget"

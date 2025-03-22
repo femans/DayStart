@@ -12,7 +12,6 @@ const { auth } = useSupabaseClient()
       icon="i-mdi-github"
       block
       label="Github"
-      color="primary"
       variant="solid"
       @click="
         auth.signInWithOAuth({
@@ -28,7 +27,7 @@ const { auth } = useSupabaseClient()
       icon="i-mdi-google"
       block
       label="Google"
-      color="gray"
+      color="neutral"
       variant="solid"
       disabled
       @click="auth.signInWithOAuth({ provider: 'google' })"

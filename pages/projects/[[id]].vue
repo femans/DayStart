@@ -8,7 +8,7 @@ const showArchived = ref(false)
 </script>
 
 <template>
-  <div class="flex w-full flex-col items-start">
+  <div class="flex w-full flex-col items-center">
     <PlansBreadCrumbs
       class="m-2 w-full self-start text-slate-500"
       :plan="pagePlanId"

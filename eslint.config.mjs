@@ -1,5 +1,4 @@
 import eslintPluginVue from 'eslint-plugin-vue'
-import eslintPluginTailwindCSS from 'eslint-plugin-tailwindcss'
 import withNuxt from './.nuxt/eslint.config.mjs'
 
 const nuxtConfig = await withNuxt()
@@ -18,13 +17,9 @@ export default [
       },
     },
     plugins: {
-      vue: eslintPluginVue,
-      tailwindcss: eslintPluginTailwindCSS,
     },
     rules: {
       ...eslintPluginVue.configs['vue3-recommended'].rules,
-      ...eslintPluginTailwindCSS.configs.recommended.rules,
-      'tailwindcss/classnames-order': 'warn', // Warn about unordered classes
       'vue/max-attributes-per-line': [
         'error',
         {
@@ -56,12 +51,6 @@ export default [
           multiline: 'always',
         },
       ],
-    },
-    settings: {
-      tailwindcss: {
-        callees: ['classnames', 'clsx'], // Include class helper libraries if used
-        config: './tailwind.config.js', // Tailwind config path
-      },
     },
   },
 ]
