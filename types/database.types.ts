@@ -34,36 +34,71 @@ export type Database = {
   }
   public: {
     Tables: {
-      plan_dependencies: {
+      cost_registration: {
         Row: {
-          created_by: string
-          depends_on_id: number
+          created_at: string
+          currency: string | null
           id: number
-          plan_id: number
+          money: number
+          plan: number
+          user: string | null
         }
         Insert: {
-          created_by?: string
-          depends_on_id: number
+          created_at?: string
+          currency?: string | null
           id?: number
-          plan_id: number
+          money?: number
+          plan: number
+          user?: string | null
         }
         Update: {
-          created_by?: string
-          depends_on_id?: number
+          created_at?: string
+          currency?: string | null
           id?: number
-          plan_id?: number
+          money?: number
+          plan?: number
+          user?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'plan_dependencies_depends_on_id_fkey'
-            columns: ['depends_on_id']
+            foreignKeyName: 'cost_registration_plan_fkey'
+            columns: ['plan']
+            isOneToOne: false
+            referencedRelation: 'plans'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      plan_dependencies: {
+        Row: {
+          created_by: string
+          depends_on: number
+          id: number
+          plan: number
+        }
+        Insert: {
+          created_by?: string
+          depends_on: number
+          id?: number
+          plan: number
+        }
+        Update: {
+          created_by?: string
+          depends_on?: number
+          id?: number
+          plan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'plan_dependencies_depends_on_fkey'
+            columns: ['depends_on']
             isOneToOne: false
             referencedRelation: 'plans'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'plan_dependencies_plan_id_fkey'
-            columns: ['plan_id']
+            foreignKeyName: 'plan_dependencies_plan_fkey'
+            columns: ['plan']
             isOneToOne: false
             referencedRelation: 'plans'
             referencedColumns: ['id']
@@ -126,6 +161,38 @@ export type Database = {
           {
             foreignKeyName: 'Plans_parent_fkey'
             columns: ['parent_id']
+            isOneToOne: false
+            referencedRelation: 'plans'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      time_registration: {
+        Row: {
+          created_at: string
+          hours: number
+          id: number
+          plan: number
+          user: string | null
+        }
+        Insert: {
+          created_at?: string
+          hours?: number
+          id?: number
+          plan: number
+          user?: string | null
+        }
+        Update: {
+          created_at?: string
+          hours?: number
+          id?: number
+          plan?: number
+          user?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'time_registration_plan_fkey'
+            columns: ['plan']
             isOneToOne: false
             referencedRelation: 'plans'
             referencedColumns: ['id']
