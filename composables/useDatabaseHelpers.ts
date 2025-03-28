@@ -6,6 +6,9 @@ export default function useDatabaseHelpers() {
   const user = useSupabaseUser()
   const route = useRoute()
   const plans = useTable('plans', { verbose: true, autoFetch: true })
+  const planDependencies = useTable('plan_dependencies', { verbose: true, autoFetch: true })
+
+  const planMap = computed(() => new Map(plans.data.value.map(plan => [plan.id, plan])))
 
   const pagePlanId = computed(() =>
     isNaN(parseInt(route.params.id as string))
@@ -16,6 +19,12 @@ export default function useDatabaseHelpers() {
   const pagePlan = computed<Plan>(() =>
     plans.data.value.find(p => p.id === pagePlanId.value) ?? {} as Plan,
   )
+
+  const blockers = computed(() => {
+    return new Map(plans.data.value.map(plan => [plan.id, planDependencies.data.value
+      .filter(d => d.plan === plan.id && !planMap.value.get(d.depends_on)!.archived && !planMap.value.get(d.depends_on)!.done)
+      .map(d => d.depends_on)]))
+  })
 
   let debounceTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -155,8 +164,11 @@ export default function useDatabaseHelpers() {
 
   return {
     plans,
+    planDependencies,
+    planMap,
     pagePlan,
     pagePlanId,
+    blockers,
     updatePlan,
     updatePagePlan,
     archiveDoneChildren,

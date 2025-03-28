@@ -80,7 +80,6 @@ const plansGroup = 'plansGroup'
       <div
         class="flex w-full flex-row items-center"
         :class="[
-          item.done ? 'line-through' : '',
           item.archived ? 'italic text-slate-400 dark:text-slate-600' : 'text-slate-700 dark:text-slate-200',
         ]"
       >
@@ -109,9 +108,10 @@ const plansGroup = 'plansGroup'
           </UTooltip>
           <NuxtLink :to="{ name: 'projects-id', params: { id: item.id } }">
             <span
-              :class="
-                totalChildren(item.id) ? 'font-bold' : 'font-normal'
-              "
+              :class="[
+                totalChildren(item.id) ? 'font-bold' : 'font-normal',
+                item.done ? 'line-through' : '',
+              ]"
             >
               {{ item.title }}
             </span>

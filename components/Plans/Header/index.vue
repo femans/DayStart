@@ -2,7 +2,7 @@
 import { UCheckbox } from '#components'
 
 const route = useRoute()
-const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
+const { pagePlan, pagePlanId, updatePagePlan, blockers } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
 const tabs = ['overview', 'planning', 'tracking', 'budget', 'expenses']
@@ -16,12 +16,17 @@ watch(() => route.params, async () => {
     titleArea.value.style.height = `${titleArea.value.scrollHeight}px`
   }
 })
+
+const blocked = computed(() => {
+  return pagePlanId.value && blockers.value.get(pagePlanId.value)?.length
+})
 </script>
 
 <template>
   <div class="relative">
     <!-- Title -->
     <div class="flex w-full flex-row">
+      <UIcon v-if="blocked" name="i-heroicons-hand-raised" class="text-4xl" />
       <textarea
         v-if="pagePlanId !== null"
         ref="titleArea"
@@ -82,13 +87,13 @@ watch(() => route.params, async () => {
         v-model="pagePlan.done"
         label="Done"
         class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
-        @change="done => updatePagePlan({ done })"
+        @update:model-value="done => typeof done === 'boolean' && updatePagePlan({ done })"
       />
       <UCheckbox
         v-model="pagePlan.archived"
         label="Archived"
         class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
-        @change="archived => updatePagePlan({ archived })"
+        @update:model-value="archived => typeof archived === 'boolean' && updatePagePlan({ archived })"
       />
     </div>
     <!-- overview panel -->
