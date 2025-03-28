@@ -101,6 +101,7 @@ const tasks = computed(() => {
               @click="archiveRestore(item.id)"
             />
           </UTooltip>
+          <PlansBlockersIcon :item="item" />
           <div
             v-for="breadcrumb, i in [0, -3, -2].map(n => getTrail(item.id).at(n)).filter((p, i, a) => !!p && p !== a.at(i - 1))"
             :key="i"

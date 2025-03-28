@@ -5,7 +5,10 @@ type Plan = Tables<'plans'>
 export default function useDatabaseHelpers() {
   const user = useSupabaseUser()
   const route = useRoute()
-  const plans = useTable('plans', { verbose: true, autoFetch: true })
+  const plans = useTable('plans', {
+    verbose: true,
+    autoFetch: true,
+  })
   const planDependencies = useTable('plan_dependencies', { verbose: true, autoFetch: true })
 
   const planMap = computed(() => new Map(plans.data.value.map(plan => [plan.id, plan])))

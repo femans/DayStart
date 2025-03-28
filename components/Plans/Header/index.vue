@@ -2,7 +2,7 @@
 import { UCheckbox } from '#components'
 
 const route = useRoute()
-const { pagePlan, pagePlanId, updatePagePlan, blockers } = useDatabaseHelpers()
+const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
 const tabs = ['overview', 'planning', 'tracking', 'budget', 'expenses']
@@ -16,17 +16,13 @@ watch(() => route.params, async () => {
     titleArea.value.style.height = `${titleArea.value.scrollHeight}px`
   }
 })
-
-const blocked = computed(() => {
-  return pagePlanId.value && blockers.value.get(pagePlanId.value)?.length
-})
 </script>
 
 <template>
   <div class="relative">
     <!-- Title -->
     <div class="flex w-full flex-row">
-      <UIcon v-if="blocked" name="i-heroicons-hand-raised" class="text-4xl" />
+      <PlansBlockersIcon :item="pagePlan" class="text-4xl bg-slate-400" />
       <textarea
         v-if="pagePlanId !== null"
         ref="titleArea"

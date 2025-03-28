@@ -6,14 +6,13 @@ import type { Tables } from '~~/types/database.types'
 type Plan = Tables<'plans'>
 
 const { isMoving } = useMovingItem()
-const { calculateMovedItemPriority } = useDatabaseHelpers()
+const { calculateMovedItemPriority, plans } = useDatabaseHelpers()
+const { totalChildren, finishedChildren, unfinishedChildren, redFlag, completePlan, placeholder } = usePlanList()
 
 const props = defineProps<{
   planId: number | null
   showArchived: boolean
 }>()
-const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { totalChildren, finishedChildren, unfinishedChildren, redFlag, completePlan, placeholder } = usePlanList()
 
 const sortedPlansList = computed(() => plans.data.value
   .filter(p => p.parent_id === props.planId)
@@ -113,6 +112,7 @@ const plansGroup = 'plansGroup'
                 item.done ? 'line-through' : '',
               ]"
             >
+              <PlansBlockersIcon :item="item" />
               {{ item.title }}
             </span>
             <span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>

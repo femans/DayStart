@@ -3,35 +3,49 @@ import type { Tables } from '~~/types/database.types'
 
 type Dependency = Tables<'plan_dependencies'>
 type Plan = Tables<'plans'>
+type DepListing = {
+  label: string
+  id: number
+}
 
 const user = useSupabaseUser()
 const { plans, planDependencies, pagePlanId, planMap } = useDatabaseHelpers()
 
-const menuList = computed<number[]>(() => plans.data.value
+const labelMaker = (item: number) => {
+  const plan = planMap.value.get(item)!
+  return `${plan.done ? '✅' : ''} ${plan.id} - ${plan.title}`
+}
+const menuList = computed<DepListing[]>(() => plans.data.value
   .filter(plan => (!plan.archived && !plan.done))
-  .map((plan: Plan) => plan.id),
+  .map((plan: Plan) => ({
+    id: plan.id,
+    label: labelMaker(plan.id),
+  })),
 )
-const dependencies = computed<number[]>(() => {
+const dependencies = computed<DepListing[]>(() => {
   return planDependencies.data.value
     .filter((d: Dependency) => d.plan === pagePlanId.value)
-    .map((d: Dependency) => d.depends_on)
+    .map((d: Dependency) => ({
+      id: d.depends_on,
+      label: labelMaker(d.depends_on),
+    }))
 })
 
-const inputList = computed<number[]>({
+const inputList = computed<DepListing[]>({
   get() {
     return dependencies.value
   },
-  set(newList: number[]) {
-    const addedIds = newList?.filter(id => !dependencies.value?.some(planId => id === planId))
-    const droppedIds = dependencies.value?.filter(id => !newList?.some(input => id === input))
-    addedIds?.forEach(addedId => planDependencies.create({
+  set(newList: DepListing[]) {
+    const addedDeps = newList?.filter(newDep => !dependencies.value?.some(oldDep => newDep.id === oldDep.id))
+    const droppedDeps = dependencies.value?.filter(oldDep => !newList?.some(newDep => oldDep.id === newDep.id))
+    addedDeps?.forEach(addedDep => planDependencies.create({
       created_by: user.value?.id,
       plan: pagePlanId.value!,
-      depends_on: addedId,
+      depends_on: addedDep.id,
     }))
-    droppedIds?.forEach((droppedId) => {
-      const dep = planDependencies.data.value.find(d => d.plan === pagePlanId.value && d.depends_on === droppedId)?.id
-      if (dep)planDependencies.remove(dep)
+    droppedDeps?.forEach((droppedDep) => {
+      const dep = planDependencies.data.value.find(d => d.plan === pagePlanId.value && d.depends_on === droppedDep.id)
+      if (dep) planDependencies.remove(dep.id)
     })
   },
 })
@@ -48,12 +62,12 @@ const inputList = computed<number[]>({
     :items="menuList"
   >
     <template #tags-item-text="{ item }">
-      <NuxtLink :to="{ name: 'projects-id', params: { id: item } }">
-        {{ `${planMap.get(item)!.done ? '✅' : ''} ${planMap.get(item)!.id} - ${planMap.get(item)!.title}` }}
+      <NuxtLink :to="{ name: 'projects-id', params: { id: item.id } }">
+        {{ item.label }}
       </NuxtLink>
     </template>
     <template #item-label="{ item }">
-      {{ `${planMap.get(item)!.done ? '✅' : ''} ${planMap.get(item)!.id} - ${planMap.get(item)!.title}` }}
+      {{ item.label }}
     </template>
   </UInputMenu>
 </template>
