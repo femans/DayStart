@@ -54,6 +54,7 @@ watch(() => route.params, async () => {
         <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
       </div>
       <div
+        v-if="pagePlanId"
         ref="stopwatch"
         class="relative flex size-10 min-w-10 cursor-pointer items-center justify-center rounded-full text-5xl"
       >

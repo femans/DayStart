@@ -12,6 +12,7 @@ const { totalChildren, finishedChildren, unfinishedChildren, redFlag, completePl
 const props = defineProps<{
   planId: number | null
   showArchived: boolean
+  columns: { width: number, title: string }[]
 }>()
 
 const sortedPlansList = computed(() => plans.data.value
@@ -131,18 +132,35 @@ const plansGroup = 'plansGroup'
         </div>
         <div v-if="!isMoving(item)" class="flex flex-row items-center">
           <DSValidatedInput
-            class="mb-1 mr-2 w-8 border-b px-1 text-right text-sm outline-none "
+            :style="{ width: `${columns[0].width - 8}px` }"
+            class="mb-1 border-b px-1 mx-1 text-right text-sm outline-none "
             :class="{
               'border-b-4 border-double border-gray-500 dark:border-gray-300': open && totalChildren(item.id),
               'border-solid border-gray-300 dark:border-gray-700': !open,
-              'border-b-red-500 text-red-500': redFlag(item),
+              'border-b-red-500 text-red-500': redFlag(item, 'budget'),
+            }"
+            field="budget"
+            input-type="number"
+            :plan="item"
+            :placeholder="placeholder(item, 'budget')"
+          />
+          <DSValidatedInput
+            :style="{ width: `${columns[1].width - 8}px` }"
+            class="mb-1 border-b px-1 mx-1 text-right text-sm outline-none "
+            :class="{
+              'border-b-4 border-double border-gray-500 dark:border-gray-300': open && totalChildren(item.id),
+              'border-solid border-gray-300 dark:border-gray-700': !open,
+              'border-b-red-500 text-red-500': redFlag(item, 'manhours_required'),
             }"
             field="manhours_required"
             input-type="number"
             :plan="item"
-            :placeholder="placeholder(item)"
+            :placeholder="placeholder(item, 'manhours_required')"
           />
-          <div class="flex w-10 justify-center self-center">
+          <div
+            class="flex justify-center self-center"
+            :style="{ width: `${columns[2].width}px` }"
+          >
             <USwitch
               v-if="totalChildren(item.id)"
               v-model="item.done"
@@ -170,6 +188,7 @@ const plansGroup = 'plansGroup'
           :plan-id="item.id"
           class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-300"
           :show-archived="showArchived"
+          :columns="columns"
         />
       </DisclosurePanel>
     </Disclosure>

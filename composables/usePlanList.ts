@@ -1,6 +1,7 @@
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
+type CalculationFields = keyof Plan & 'manhours_required' | 'budget'
 
 export const usePlanList = () => {
   const plans = useTable('plans', { verbose: true, autoFetch: true })
@@ -15,32 +16,34 @@ export const usePlanList = () => {
     plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
   const totalChildren = (itemId: number | null) =>
     plans.data.value.filter(p => p.parent_id === itemId && !p.archived).length
-  const calculatedTimeRequired = (itemId: number): number =>
+  const calculatedAmountRequired = (itemId: number, field: CalculationFields): number =>
     plans.data.value.filter(p => p.parent_id === itemId && !p.archived).reduce((
       total,
       plan,
-    ) => total + (plan.manhours_required || 0), 0)
-  const redFlag = (item: Plan): boolean => item.manhours_required !== null && (calculatedTimeRequired(item.id) > (item.manhours_required))
+    ) => total + (plan[field] || 0), 0)
+  const redFlag = (item: Plan, field: CalculationFields): boolean =>
+    item[field] !== null && (calculatedAmountRequired(item.id, field) > (item[field]))
 
   /**
  * placeholder: calculate the average of the time needed for each unfinished subtask that has no estimate yet
  */
-  const placeholder = (item: Plan): string => {
+  const placeholder = (item: Plan, field: CalculationFields): string => {
     if (item.done || item.archived) return '(0)'
-    if (redFlag(item)) return '!'
+    if (redFlag(item, field)) return '!'
     const parent = (item.parent_id && plans.data.value.find(({ id }) => id === item.parent_id))
     if (parent) {
-      if (redFlag(parent)) return '!'
-      const unestimatedSiblings = plans.data.value.filter(p => p.parent_id === parent.id && !p.done && !p.archived && p.manhours_required === null).length
-      const countedHours = plans.data.value
-        .filter(p => p.parent_id === parent.id && !p.archived && p.manhours_required)
-        .reduce((total, plan) => total + plan.manhours_required!, 0)
+      if (redFlag(parent, field)) return '!'
+      const unestimatedSiblings = plans.data.value.filter(p => p.parent_id === parent.id && !p.done && !p.archived && p[field] === null)
+      const summedNumber = plans.data.value
+        .filter(p => p.parent_id === parent.id && !p.archived && p[field])
+        .reduce((total, plan) => total + plan[field]!, 0)
+      console.log(item.id, parent.id, unestimatedSiblings, summedNumber)
       return unestimatedSiblings
-        ? `(${parent.manhours_required ? ((parent.manhours_required - countedHours) / unestimatedSiblings).toFixed(1).replace(/\.0$/, '') : '0'})`
+        ? `(${parent[field] ? ((parent[field] - summedNumber) / unestimatedSiblings.length).toFixed(1).replace(/\.0$/, '') : '0'})`
         : 'err'
     }
     else if (totalChildren(item.id)) {
-      return `(${calculatedTimeRequired(item.id)})`
+      return `(${calculatedAmountRequired(item.id, field)})`
     }
     return ''
   }
@@ -50,7 +53,7 @@ export const usePlanList = () => {
     finishedChildren,
     unfinishedChildren,
     totalChildren,
-    calculatedTimeRequired,
+    calculatedTimeRequired: calculatedAmountRequired,
     redFlag,
     placeholder,
   }
