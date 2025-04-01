@@ -27,7 +27,6 @@ const sortedPlansList = computed(() => plans.data.value
 
 function moveItem(item: MovingItem<Plan>) {
   if (!item.destination) return
-  console.log('Moving item:', item)
   if (item.destination.identifier === 'Archive') {
     if (item.payload.archived) {
       plans.remove(item.payload.id)

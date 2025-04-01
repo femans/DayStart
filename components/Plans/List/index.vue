@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { pagePlanId } = useDatabaseHelpers()
+const { totalChildren } = usePlanList()
 
 const columns = [
   {
@@ -22,6 +23,8 @@ defineProps<{
 </script>
 
 <template>
-  <PlansListHeader :columns="columns" />
-  <PlansListContents :plan-id="pagePlanId" :show-archived="showArchived" :columns="columns" />
+  <template v-if="totalChildren(pagePlanId)">
+    <PlansListHeader :columns="columns" />
+    <PlansListContents :plan-id="pagePlanId" :show-archived="showArchived" :columns="columns" />
+  </template>
 </template>

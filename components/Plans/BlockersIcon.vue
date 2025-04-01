@@ -13,7 +13,7 @@ defineProps <{
 <template>
   <UTooltip
     v-if="blockers.get(item.id)?.length"
-    :text="`Depends on: ${blockers.get(item.id)?.map(id => `'${id} - ${planMap.get(id)?.title}'`).join(', ')}`"
+    :text="`First finish: ${blockers.get(item.id)?.map(id => `'${id} - ${planMap.get(id)?.title}'`).join(', ')}`"
   >
     <UIcon name="i-heroicons-hand-raised" v-bind="$attrs" />
   </UTooltip>

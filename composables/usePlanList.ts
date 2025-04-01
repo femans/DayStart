@@ -37,7 +37,6 @@ export const usePlanList = () => {
       const summedNumber = plans.data.value
         .filter(p => p.parent_id === parent.id && !p.archived && p[field])
         .reduce((total, plan) => total + plan[field]!, 0)
-      console.log(item.id, parent.id, unestimatedSiblings, summedNumber)
       return unestimatedSiblings
         ? `(${parent[field] ? ((parent[field] - summedNumber) / unestimatedSiblings.length).toFixed(1).replace(/\.0$/, '') : '0'})`
         : 'err'

@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { UCheckbox } from '#components'
-
 const route = useRoute()
 const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
-const tabs = ['overview', 'planning', 'tracking', 'budget', 'expenses']
+const tabs = ['overview', 'tasks', 'tracking', 'budget', 'expenses']
 const titleArea = ref<HTMLElement | null>(null)
 const stopwatch = ref<HTMLElement>()
 
@@ -79,19 +77,6 @@ watch(() => route.params, async () => {
       >
         {{ tabName }}
       </NuxtLink>
-      <span class="ml-auto">Flags:</span>
-      <UCheckbox
-        v-model="pagePlan.done"
-        label="Done"
-        class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
-        @update:model-value="done => typeof done === 'boolean' && updatePagePlan({ done })"
-      />
-      <UCheckbox
-        v-model="pagePlan.archived"
-        label="Archived"
-        class="mx-1 rounded border border-gray-200 px-1 dark:border-gray-800"
-        @update:model-value="archived => typeof archived === 'boolean' && updatePagePlan({ archived })"
-      />
     </div>
     <!-- overview panel -->
     <UCard class="relative z-10">

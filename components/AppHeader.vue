@@ -7,6 +7,23 @@ const { realtimeSubscriptionStatus } = useDataBase()
 const toggleDark = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
 }
+const { plans } = useDatabaseHelpers()
+
+const searchItems = computed(() => {
+  return plans.data.value.map(plan => ({
+    label: `${plan.id} - ${plan.title}`,
+    id: plan.id,
+    plan,
+  }))
+})
+const searchFocus = ref<boolean>(false)
+const searchInput = ref()
+watch(searchInput, () => {
+  if (searchInput.value) {
+    navigateTo({ name: 'projects-id', params: { id: searchInput.value.id } })
+    searchInput.value = ''
+  }
+})
 
 const logout = async () => {
   await client.auth.signOut()
@@ -52,6 +69,33 @@ const topNavLinks = [
       />
     </div>
     <div class="ml-auto flex items-center">
+      <USelectMenu
+        v-if="searchItems.length"
+        v-model="searchInput"
+        v-model:open="searchFocus"
+        class="rounded-full transition-all mx-2"
+        :class="searchFocus || searchInput ? 'w-60' : 'w-10'"
+        :highlight-on-hover="false"
+        icon="i-heroicons-magnifying-glass"
+        size="md"
+        variant="none"
+        color="neutral"
+        trailing-icon=""
+        :reset-search-term-on-blur="true"
+        :items="searchItems"
+      >
+        <template #item="{ item }">
+          <NuxtLink
+            :to="{ name: 'projects-id', params: { id: item.id } }"
+            class="break-words w-56"
+            :class="item.plan.archived ? 'text-gray-400' : ''"
+          >
+            <UIcon v-if="item.plan.archived" name="i-heroicons-archive-box" />
+            {{ item.label }}
+            <UIcon v-if="item.plan.done" name="i-heroicons-check-circle" class="bg-green-600" />
+          </NuxtLink>
+        </template>
+      </USelectMenu>
       <div v-if="user" class="flex items-center">
         <UAvatar
           :src="user.user_metadata.avatar_url"

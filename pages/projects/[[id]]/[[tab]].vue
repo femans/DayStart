@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { PlansHeaderBudget, PlansHeaderExpenses, PlansHeaderOverview, PlansHeaderPlanning, PlansHeaderTracking } from '#components'
+import { PlansHeaderOverview, PlansHeaderTasks, PlansHeaderTracking, PlansHeaderBudget, PlansHeaderExpenses } from '#components'
 
 // Route and component mapping
 const route = useRoute()
 const componentMap: Record<string, Component> = {
   overview: PlansHeaderOverview,
-  planning: PlansHeaderPlanning,
+  tasks: PlansHeaderTasks,
   tracking: PlansHeaderTracking,
   budget: PlansHeaderBudget,
   expenses: PlansHeaderExpenses,

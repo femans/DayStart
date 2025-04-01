@@ -129,7 +129,7 @@ export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
       throw error
     }
     if (data) rows.value = data
-    if (options?.verbose) console.log(rows.value.length + ' rows fetched')
+    if (options?.verbose) console.log(rows.value.length + ' rows fetched for table', table)
   }
 
   // Add a new row to the table
