@@ -6,14 +6,14 @@ type Plan = Tables<'plans'>
 const { blockers, planMap } = useDatabaseHelpers()
 
 defineProps <{
-  item: Plan
+  plan: Plan | null
 }>()
 </script>
 
 <template>
   <UTooltip
-    v-if="blockers.get(item.id)?.length"
-    :text="`First finish: ${blockers.get(item.id)?.map(id => `'${id} - ${planMap.get(id)?.title}'`).join(', ')}`"
+    v-if="plan && blockers.get(plan.id)?.length"
+    :text="`First finish: ${blockers.get(plan.id)?.map(id => `'${id} - ${planMap.get(id)?.title}'`).join(', ')}`"
   >
     <UIcon name="i-heroicons-hand-raised" v-bind="$attrs" />
   </UTooltip>

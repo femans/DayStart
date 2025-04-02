@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 const route = useRoute()
-const { pagePlan, pagePlanId, updatePagePlan } = useDatabaseHelpers()
+const { pagePlan, pagePlanId, updatePlan } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
 const tabs = ['overview', 'tasks', 'tracking', 'budget', 'expenses']
 const titleArea = ref<HTMLElement | null>(null)
-const stopwatch = ref<HTMLElement>()
 
 watch(() => route.params, async () => {
   await nextTick()
@@ -20,21 +19,21 @@ watch(() => route.params, async () => {
   <div class="relative">
     <!-- Title -->
     <div class="flex w-full flex-row">
-      <PlansBlockersIcon :item="pagePlan" class="text-4xl bg-slate-400" />
+      <PlansBlockersIcon :plan="pagePlan" class="text-4xl bg-slate-400" />
       <textarea
-        v-if="pagePlanId !== null"
+        v-if="pagePlan"
         ref="titleArea"
-        v-model="pagePlan.title"
-        :disabled="pagePlan.archived"
+        v-model="pagePlan!.title"
+        :disabled="pagePlan!.archived"
         name="title"
         class="mr-auto h-auto w-full overflow-hidden text-3xl font-bold"
         :class="{
-          'italic text-slate-400': pagePlan.archived,
-          'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+          'italic text-slate-400': pagePlan!.archived,
+          'text-slate-900 dark:text-slate-100': !pagePlan!.archived,
         }"
         rows="1"
         oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-        @change="updatePagePlan({ title: ($event.target as HTMLTextAreaElement).value })"
+        @change="updatePlan({ uuid: pagePlan.uuid, title: ($event.target as HTMLTextAreaElement).value })"
         @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
       />
       <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
@@ -42,7 +41,7 @@ watch(() => route.params, async () => {
         Home
       </h1>
       <div
-        v-if="pagePlan.done || (finishedChildren(pagePlanId) && !unfinishedChildren(pagePlanId))"
+        v-if="pagePlan && (pagePlan.done || (finishedChildren(pagePlan.uuid) && !unfinishedChildren(pagePlan.uuid)))"
         class="flex size-10 min-w-10 items-center justify-center rounded-full "
         :class="{
           'bg-green-500': pagePlan.done,
@@ -51,16 +50,13 @@ watch(() => route.params, async () => {
       >
         <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
       </div>
-      <div
+      <!-- <div
         v-if="pagePlanId"
         ref="stopwatch"
         class="relative flex size-10 min-w-10 cursor-pointer items-center justify-center rounded-full text-5xl"
       >
         <UIcon name="i-heroicons-clock" class="size-8 bg-gray-700 stopwatch" />
-        <!-- <div class="stopwatch ">
-          ⏱️
-        </div> -->
-      </div>
+      </div> -->
     </div>
     <!-- tab row -->
     <div class="mb-1 flex w-full flex-row items-center">

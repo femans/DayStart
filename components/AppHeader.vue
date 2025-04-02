@@ -88,7 +88,7 @@ const topNavLinks = [
           <NuxtLink
             :to="{ name: 'projects-id', params: { id: item.id } }"
             class="break-words w-56"
-            :class="item.plan.archived ? 'text-gray-400' : ''"
+            :class="item.plan.archived ? 'text-(--ui-text-muted)' : ''"
           >
             <UIcon v-if="item.plan.archived" name="i-heroicons-archive-box" />
             {{ item.label }}

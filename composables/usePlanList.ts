@@ -7,22 +7,22 @@ export const usePlanList = () => {
   const plans = useTable('plans', { verbose: true, autoFetch: true })
 
   const completePlan = async (p: Plan) => {
-    await plans.update(p.id, { done: !p.done })
+    await plans.update(p.uuid, { done: !p.done })
   }
 
-  const finishedChildren = (itemId: number | null): number =>
-    plans.data.value.filter(p => p.parent_id === itemId && p.done && !p.archived).length
-  const unfinishedChildren = (itemId: number | null): number | null =>
-    plans.data.value.filter(p => p.parent_id === itemId && !p.done && !p.archived).length
-  const totalChildren = (itemId: number | null) =>
-    plans.data.value.filter(p => p.parent_id === itemId && !p.archived).length
-  const calculatedAmountRequired = (itemId: number, field: CalculationFields): number =>
-    plans.data.value.filter(p => p.parent_id === itemId && !p.archived).reduce((
+  const finishedChildren = (itemId: string | null): number =>
+    plans.data.value.filter(p => p.parent === itemId && p.done && !p.archived).length
+  const unfinishedChildren = (itemId: string | null): number | null =>
+    plans.data.value.filter(p => p.parent === itemId && !p.done && !p.archived).length
+  const totalChildren = (itemId: string | null) =>
+    plans.data.value.filter(p => p.parent === itemId && !p.archived).length
+  const calculatedAmountRequired = (itemId: string, field: CalculationFields): number =>
+    plans.data.value.filter(p => p.parent === itemId && !p.archived).reduce((
       total,
       plan,
     ) => total + (plan[field] || 0), 0)
   const redFlag = (item: Plan, field: CalculationFields): boolean =>
-    item[field] !== null && (calculatedAmountRequired(item.id, field) > (item[field]))
+    item[field] !== null && (calculatedAmountRequired(item.uuid, field) > (item[field]))
 
   /**
  * placeholder: calculate the average of the time needed for each unfinished subtask that has no estimate yet
@@ -30,19 +30,19 @@ export const usePlanList = () => {
   const placeholder = (item: Plan, field: CalculationFields): string => {
     if (item.done || item.archived) return '(0)'
     if (redFlag(item, field)) return '!'
-    const parent = (item.parent_id && plans.data.value.find(({ id }) => id === item.parent_id))
+    const parent = (item.parent && plans.data.value.find(({ uuid }) => uuid === item.parent))
     if (parent) {
       if (redFlag(parent, field)) return '!'
-      const unestimatedSiblings = plans.data.value.filter(p => p.parent_id === parent.id && !p.done && !p.archived && p[field] === null)
+      const unestimatedSiblings = plans.data.value.filter(p => p.parent === parent.uuid && !p.done && !p.archived && p[field] === null)
       const summedNumber = plans.data.value
-        .filter(p => p.parent_id === parent.id && !p.archived && p[field])
+        .filter(p => p.parent === parent.uuid && !p.archived && p[field])
         .reduce((total, plan) => total + plan[field]!, 0)
       return unestimatedSiblings
         ? `(${parent[field] ? ((parent[field] - summedNumber) / unestimatedSiblings.length).toFixed(1).replace(/\.0$/, '') : '0'})`
         : 'err'
     }
-    else if (totalChildren(item.id)) {
-      return `(${calculatedAmountRequired(item.id, field)})`
+    else if (totalChildren(item.uuid)) {
+      return `(${calculatedAmountRequired(item.uuid, field)})`
     }
     return ''
   }

@@ -11,7 +11,7 @@ export default function useDatabaseHelpers() {
   })
   const planDependencies = useTable('plan_dependencies', { verbose: true, autoFetch: true })
 
-  const planMap = computed(() => new Map(plans.data.value.map(plan => [plan.id, plan])))
+  const planMap = computed<Map<string, Plan>>(() => new Map(plans.data.value.map(plan => [plan.uuid, plan])))
 
   const pagePlanId = computed(() =>
     isNaN(parseInt(route.params.id as string))
@@ -19,13 +19,13 @@ export default function useDatabaseHelpers() {
       : parseInt(route.params.id as string),
   )
 
-  const pagePlan = computed<Plan>(() =>
-    plans.data.value.find(p => p.id === pagePlanId.value) ?? {} as Plan,
+  const pagePlan = computed<Plan | null>(() =>
+    plans.data.value.find(p => p.id === pagePlanId.value) || null,
   )
 
   const blockers = computed(() => {
     return new Map(plans.data.value.map(plan => [plan.id, planDependencies.data.value
-      .filter(d => d.plan === plan.id && !planMap.value.get(d.depends_on)!.archived && !planMap.value.get(d.depends_on)!.done)
+      .filter(d => d.plan === plan.uuid && !planMap.value.get(d.depends_on)!.archived && !planMap.value.get(d.depends_on)!.done)
       .map(d => d.depends_on)]))
   })
 
@@ -35,8 +35,8 @@ export default function useDatabaseHelpers() {
     if (debounceTimeout) clearTimeout(debounceTimeout)
     debounceTimeout = setTimeout(async () => {
       if (!user.value) return
-      if (update.id === undefined) return
-      await plans.update(update.id, update).then(
+      if (update.uuid === undefined) return
+      await plans.update(update.uuid, update).then(
         () => console.log(`Plan ${pagePlanId.value} updated with ${JSON.stringify(update)}`),
         error => console.error('Error updating plan:', error),
       )
@@ -44,25 +44,21 @@ export default function useDatabaseHelpers() {
     }, 150)
   }
 
-  function updatePagePlan(update: Partial<Plan>) {
-    if (pagePlanId.value !== null) updatePlan({ id: pagePlanId.value, ...update })
-  }
-
   function archiveDoneChildren() {
     if (!user.value) return
     if (!pagePlanId.value) return
     plans.data.value
-      .filter(p => p.parent_id === pagePlanId.value && p.done && !p.archived)
-      .forEach(p => plans.update(p.id, { archived: true }))
+      .filter(p => p.parent === (pagePlan.value?.uuid || null) && p.done && !p.archived)
+      .forEach(p => plans.update(p.uuid, { archived: true }))
   }
 
   const planChildrenMap = computed(() => {
-    const map = new Map<number | null, Plan[]>()
+    const map = new Map<string | null, Plan[]>()
     for (const plan of plans.data.value) {
-      if (!map.has(plan.parent_id)) {
-        map.set(plan.parent_id, [])
+      if (!map.has(plan.parent)) {
+        map.set(plan.parent, [])
       }
-      map.get(plan.parent_id)!.push(plan)
+      map.get(plan.parent)!.push(plan)
     }
     return map
   })
@@ -78,7 +74,7 @@ export default function useDatabaseHelpers() {
     const activeList: Plan[] = []
     function hasNoArchivedOrDoneAncestors(plan: Plan): boolean {
       while (plan) {
-        const parent = plans.data.value.find(p => p.id === plan.parent_id)
+        const parent = plans.data.value.find(p => p.uuid === plan.parent)
         if (!parent) break
         plan = parent
         if (plan.done || plan.archived) return false
@@ -87,7 +83,7 @@ export default function useDatabaseHelpers() {
     }
 
     for (const plan of plans.data.value) {
-      if (!planChildrenMap.value.has(plan.id) && hasNoArchivedOrDoneAncestors(plan)) {
+      if (!planChildrenMap.value.has(plan.uuid) && hasNoArchivedOrDoneAncestors(plan)) {
         activeList.push(plan)
       }
     }
@@ -173,7 +169,6 @@ export default function useDatabaseHelpers() {
     pagePlanId,
     blockers,
     updatePlan,
-    updatePagePlan,
     archiveDoneChildren,
     taskList,
     planChildrenMap,

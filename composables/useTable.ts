@@ -66,18 +66,18 @@ export function useDataBase(options?: DbOptions) {
             const table = payload.table as TableNames
             const event = payload.eventType
             const data = payload.new as TableRow<TableNames>
-            const id = 'id' in data ? data.id : null
+            const uuid = 'uuid' in data ? data.uuid : null
             if (options?.verbose)
               console.log(`SUPABASE REALTIME: ${event}, payload:`, payload)
             if (!database.has(table)) database.set(table, ref([]))
             const dataTable = database.get(table)!.value
             if (event === 'INSERT' || event === 'UPDATE') {
-              const index = dataTable.findIndex(row => row.id === id)
+              const index = dataTable.findIndex(row => row.uuid === uuid)
               if (index === -1 && data) dataTable.push(data)
               else dataTable[index] = data
             }
             else if (event === 'DELETE') {
-              const index = dataTable.findIndex(row => row.id === id)
+              const index = dataTable.findIndex(row => row.uuid === uuid)
               if (index !== -1) dataTable.splice(index, 1)
             }
           },
@@ -104,7 +104,7 @@ export function useDataBase(options?: DbOptions) {
  * @param options.verbose Whether to log real-time changes to the console. Default is `false`.
  */
 export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
-  type idType = TableRow<T>['id']
+  type idType = TableRow<T>['uuid']
 
   // Note that we can not use useSupabaseClient outside of the composable because it requires access to the nuxt instance
   const supabase = useSupabaseClient<Database>()
@@ -145,30 +145,30 @@ export function useTable<T extends TableNames>(table: T, options?: DbOptions) {
   }
 
   // Update a row in the table
-  const update = async (id: idType, updatedData: TablesUpdate<T>) => {
+  const update = async (uuid: idType, updatedData: TablesUpdate<T>) => {
     if (options?.verbose)
-      console.log('updating row in table', table, id, updatedData)
+      console.log('updating row in table', table, uuid, updatedData)
     const { data, status, statusText } = await supabase
       .from(table as TableNames)
       .update(updatedData)
-      .eq('id', id)
+      .eq('uuid', uuid)
       .select()
     if (status !== 200) throw Error(statusText)
     if (data) {
-      const index = rows.value.findIndex(row => row.id === id)
+      const index = rows.value.findIndex(row => row.uuid === uuid)
       if (index !== -1) rows.value[index] = data[0]
     }
   }
 
   // Delete a row from the table
-  const remove = async (id: idType) => {
-    if (options?.verbose) console.log('deleting row from table', table, id)
+  const remove = async (uuid: idType) => {
+    if (options?.verbose) console.log('deleting row from table', table, uuid)
     const { status, statusText } = await supabase
       .from(table as TableNames)
       .delete()
-      .eq('id', id)
+      .eq('uuid', uuid)
     if (status !== 204) throw Error(statusText)
-    rows.value = rows.value.filter(row => row.id !== id)
+    rows.value = rows.value.filter(row => row.uuid !== uuid)
   }
 
   // Initialize data

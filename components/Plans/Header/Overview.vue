@@ -2,18 +2,18 @@
 import { USeparator } from '#components'
 
 const plans = useTable('plans', { verbose: true, autoFetch: true })
-const { pagePlanId, pagePlan, updatePagePlan } = useDatabaseHelpers()
+const { pagePlan, updatePlan } = useDatabaseHelpers()
 
 const unfinishedChildren = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.done && !p.archived),
+  plans.data.value.filter(p => p.parent === (pagePlan.value?.uuid || null) && !p.done && !p.archived),
 )
 
 const children = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived),
+  plans.data.value.filter(p => p.parent === (pagePlan.value?.uuid || null) && !p.archived),
 )
 
 const totalChildren = computed(() =>
-  plans.data.value.filter(p => p.parent_id === pagePlanId.value && !p.archived).length,
+  plans.data.value.filter(p => p.parent === (pagePlan.value?.uuid || null) && !p.archived).length,
 )
 
 const calculatedTimeRequired = computed(() =>
@@ -36,39 +36,43 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
 <template>
   <PlansHeader tab="overview">
     <textarea
-      v-if="pagePlanId !== null"
+      v-if="pagePlan"
       ref="dodArea"
-      v-model="pagePlan.definition_of_done"
-      :disabled="pagePlan.archived"
+      v-model="pagePlan!.definition_of_done"
+      :disabled="pagePlan!.archived"
       name="dod"
       class="h-auto w-full overflow-hidden rounded-md border p-1"
-      placeholder="Short description of done:&#10;Criteria to meet before checking off this project/task."
+      placeholder="Criteria to meet before marking this as &lsquo;done&rsquo;."
       :class="{
-        'italic text-slate-400': pagePlan.archived,
-        'text-slate-900 dark:text-slate-100': !pagePlan.archived,
+        'italic text-slate-400': pagePlan!.archived,
+        'text-slate-900 dark:text-slate-100': !pagePlan!.archived,
       }"
       rows="3"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
-      @change="updatePagePlan({ definition_of_done: ($event.target as HTMLTextAreaElement).value })"
+      @change="updatePlan({ uuid: pagePlan!.uuid, definition_of_done: ($event.target as HTMLTextAreaElement).value })"
       @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
     />
-    <div class="flex flex-row mb-1">
+    <div
+      v-if="pagePlan"
+      class="flex flex-row mb-1"
+    >
       <UCheckbox
         v-model="pagePlan.done"
         label="Done"
         class="ml-auto rounded border border-gray-200 px-1 dark:border-gray-800"
-        @update:model-value="done => typeof done === 'boolean' && updatePagePlan({ done })"
+        @update:model-value="done => (typeof done === 'boolean') && updatePlan({ uuid: pagePlan!.uuid, done })"
       />
       <UCheckbox
         v-model="pagePlan.archived"
         label="Archived"
         class="ml-1 rounded border border-gray-200 px-1 dark:border-gray-800"
-        @update:model-value="archived => typeof archived === 'boolean' && updatePagePlan({ archived })"
+        @update:model-value="archived => typeof archived === 'boolean' && updatePlan({ uuid: pagePlan!.uuid, archived })"
       />
     </div>
     <USeparator />
     <UProgress v-model="progress" indicator />
     <PlansHeaderInput
+      v-if="pagePlan !== null"
       :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
       :class="{
         'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
@@ -91,7 +95,7 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
       </span>
     </div>
     <div
-      v-if="children.length && pagePlan.manhours_required !== null"
+      v-if="pagePlan && children.length && pagePlan.manhours_required !== null"
       class="m-1 flex w-full text-sm"
       :class="{
         'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
@@ -107,6 +111,7 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
     </div>
     <USeparator />
     <PlansHeaderInput
+      v-if="pagePlan"
       label="Budget:"
       field="budget"
       input-type="number"

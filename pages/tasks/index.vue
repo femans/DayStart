@@ -11,19 +11,19 @@ const plans = useTable('plans', { verbose: true, autoFetch: true })
 const { placeholder } = usePlanList()
 
 const checkDone = async (p: Plan) => {
-  recentlyChecked.value.add(p.id)
-  await plans.update(p.id, { done: !p.done })
-    .then(() => setTimeout(() => recentlyChecked.value.delete(p.id), 10000))
+  recentlyChecked.value.add(p.uuid)
+  await plans.update(p.uuid, { done: !p.done })
+    .then(() => setTimeout(() => recentlyChecked.value.delete(p.uuid), 10000))
 }
 
-const markArchiveRestore = ref<number | null>(null)
-const archiveRestore = (id: number) => {
-  if (markArchiveRestore.value === id) {
-    plans.update(id, { archived: false })
+const markArchiveRestore = ref<string | null>(null)
+const archiveRestore = (uuid: string) => {
+  if (markArchiveRestore.value === uuid) {
+    plans.update(uuid, { archived: false })
     markArchiveRestore.value = null
   }
   else {
-    markArchiveRestore.value = id
+    markArchiveRestore.value = uuid
   }
 }
 
@@ -33,7 +33,7 @@ function changePriority(item: MovingItem<Plan>) {
   if (destinationIndex === item.origin.index && item.destination.identifier === item.origin.identifier) return
   const newPriority = calculateMovedItemPriority(item.destination.listItems!, destinationIndex)
   item.payload.priority = newPriority
-  plans.update(item.payload.id, { priority: newPriority })
+  plans.update(item.payload.uuid, { priority: newPriority })
     .then(() => {
       console.log('Item priority updated successfully', plans.data.value.find(p => p.id === item.payload.id),
       )
@@ -43,11 +43,11 @@ function changePriority(item: MovingItem<Plan>) {
 const showArchived = ref(false)
 const showDone = ref(false)
 
-const recentlyChecked = ref(new Set<number>())
+const recentlyChecked = ref(new Set<string>())
 
 const tasks = computed(() => {
   return taskList.value
-    .filter(item => item.done === showDone.value || recentlyChecked.value.has(item.id))
+    .filter(item => item.done === showDone.value || recentlyChecked.value.has(item.uuid))
     .filter(item => !item.archived || showArchived.value)
 })
 </script>
@@ -95,15 +95,15 @@ const tasks = computed(() => {
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
           <UTooltip v-if="item.archived" text="Click 2x to restore from archive">
             <UIcon
-              :name="markArchiveRestore === item.id ? 'i-heroicons-archive-box-x-mark': 'i-heroicons-archive-box'"
+              :name="markArchiveRestore === item.uuid ? 'i-heroicons-archive-box-x-mark': 'i-heroicons-archive-box'"
               class="mr-1 hover:bg-purple-500"
-              :class="markArchiveRestore === item.id ? 'bg-purple-500' : ''"
-              @click="archiveRestore(item.id)"
+              :class="markArchiveRestore === item.uuid ? 'bg-purple-500' : ''"
+              @click="archiveRestore(item.uuid)"
             />
           </UTooltip>
-          <PlansBlockersIcon :item="item" />
+          <PlansBlockersIcon :plan="item" />
           <div
-            v-for="breadcrumb, i in [0, -3, -2].map(n => getTrail(item.id).at(n)).filter((p, i, a) => !!p && p !== a.at(i - 1))"
+            v-for="breadcrumb, i in [0, -3, -2].map(n => getTrail(item.uuid).at(n)).filter((p, i, a) => !!p && p !== a.at(i - 1))"
             :key="i"
             class="flex flex-row items-center text-slate-400"
           >
@@ -133,7 +133,7 @@ const tasks = computed(() => {
             field="manhours_required"
             input-type="number"
             :plan="item"
-            :placeholder="placeholder(item)"
+            :placeholder="placeholder(item, 'manhours_required')"
           />
           <div class="flex w-10 justify-center">
             <UCheckbox

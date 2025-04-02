@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { pagePlanId } = useDatabaseHelpers()
+const { pagePlan } = useDatabaseHelpers()
 const { totalChildren } = usePlanList()
 
 const columns = [
@@ -23,8 +23,8 @@ defineProps<{
 </script>
 
 <template>
-  <template v-if="totalChildren(pagePlanId)">
+  <template v-if="totalChildren(pagePlan?.uuid || null)">
     <PlansListHeader :columns="columns" />
-    <PlansListContents :plan-id="pagePlanId" :show-archived="showArchived" :columns="columns" />
+    <PlansListContents :plan-uuid="pagePlan?.uuid || null" :show-archived="showArchived" :columns="columns" />
   </template>
 </template>

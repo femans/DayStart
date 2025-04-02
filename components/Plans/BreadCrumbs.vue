@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-const props = defineProps<{ plan: number | null }>()
+const props = defineProps<{ plan: string | null | undefined }>()
 const { getTrail } = useBreadCrumbs()
+const { pagePlan, planMap } = useDatabaseHelpers()
 
-const trail = computed(() => getTrail(props.plan))
+const trail = computed(() => getTrail(props.plan || null))
 </script>
 
 <template>
-  <div class="flex items-center gap-2">
+  <div v-if="pagePlan" class="flex items-center gap-2">
     <NuxtLink :to="{ name: 'projects-id', params: { id: null } }" class="flex items-center text-2xl">
       <UIcon name="i-heroicons-home" />
     </NuxtLink>
@@ -27,7 +28,7 @@ const trail = computed(() => getTrail(props.plan))
     <NuxtLink
       v-if="trail.length > 0"
       class="flex items-center"
-      :to="{ name: 'projects-id', params: { id: trail.at(-1)?.parent_id } }"
+      :to="{ name: 'projects-id', params: { id: planMap.get(trail.at(-1)?.parent ?? '')?.id } }"
     >
       <UIcon
         name="i-heroicons-arrow-uturn-left-16-solid"
