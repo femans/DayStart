@@ -23,7 +23,7 @@ const changeHandler = (event: Event) => {
   if (validInput.value) {
     let value: string | null = (event.target as HTMLInputElement).value
     if (value === '' && props.inputType === 'number') value = null
-    updatePlan({ id: props.plan.id || undefined, [props.field]: value })
+    updatePlan({ uuid: props.plan.uuid, [props.field]: value })
   }
 }
 watch(() => props.plan, (newPlan) => {

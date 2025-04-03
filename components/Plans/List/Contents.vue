@@ -116,17 +116,6 @@ const plansGroup = 'plansGroup'
               <PlansBlockersIcon :plan="item" />
               {{ item.title }}
             </span>
-            <UBadge v-if="unfinishedChildren(item.uuid)" class="mr-1 rounded-full bg-red-200 text-black">
-              {{ unfinishedChildren(item.uuid) }}
-            </UBadge>
-            <UBadge
-              v-if="finishedChildren(item.uuid)"
-              class="mr-1 rounded-full"
-              :class="item.archived ? 'bg-gray-300' : 'bg-green-400'"
-            >
-              {{ finishedChildren(item.uuid) }}
-              <UIcon v-if="!unfinishedChildren(item.uuid)" name="i-heroicons-check-20-solid" />
-            </UBadge>
           </NuxtLink>
         </div>
         <div v-if="!isMoving(item)" class="flex flex-row items-center">
