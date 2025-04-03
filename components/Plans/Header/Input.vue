@@ -13,7 +13,10 @@ defineProps <{
 </script>
 
 <template>
-  <div class="m-1 flex flex-row items-center gap-2 text-sm">
+  <div
+    v-if="pagePlan"
+    class="m-1 flex flex-row items-center gap-2 text-sm"
+  >
     <span>
       {{ label }}
     </span>

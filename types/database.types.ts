@@ -124,9 +124,8 @@ export type Database = {
           documentation_url: string | null
           done: boolean
           done_date: string | null
-          id: number
+          id: string
           manhours_required: number | null
-          nanoid: string | null
           parent: string | null
           priority: number
           title: string | null
@@ -144,9 +143,8 @@ export type Database = {
           documentation_url?: string | null
           done?: boolean
           done_date?: string | null
-          id?: number
+          id: string
           manhours_required?: number | null
-          nanoid?: string | null
           parent?: string | null
           priority: number
           title?: string | null
@@ -164,9 +162,8 @@ export type Database = {
           documentation_url?: string | null
           done?: boolean
           done_date?: string | null
-          id?: number
+          id?: string
           manhours_required?: number | null
-          nanoid?: string | null
           parent?: string | null
           priority?: number
           title?: string | null
@@ -222,7 +219,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_unique_structured_id: {
+        Args: {
+          table_name: string
+          column_name: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

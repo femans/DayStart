@@ -13,14 +13,8 @@ export default function useDatabaseHelpers() {
 
   const planMap = computed<Map<string, Plan>>(() => new Map(plans.data.value.map(plan => [plan.uuid, plan])))
 
-  const pagePlanId = computed(() =>
-    isNaN(parseInt(route.params.id as string))
-      ? null
-      : parseInt(route.params.id as string),
-  )
-
   const pagePlan = computed<Plan | null>(() =>
-    plans.data.value.find(p => p.id === pagePlanId.value) || null,
+    plans.data.value.find(p => p.id === route.params.id) || null,
   )
 
   const blockers = computed(() => {
@@ -37,7 +31,7 @@ export default function useDatabaseHelpers() {
       if (!user.value) return
       if (update.uuid === undefined) return
       await plans.update(update.uuid, update).then(
-        () => console.log(`Plan ${pagePlanId.value} updated with ${JSON.stringify(update)}`),
+        () => console.log(`Plan ${pagePlan.value!.id} updated with ${JSON.stringify(update)}`),
         error => console.error('Error updating plan:', error),
       )
         .catch(error => console.error('Error caught updating plan:', error))
@@ -46,7 +40,7 @@ export default function useDatabaseHelpers() {
 
   function archiveDoneChildren() {
     if (!user.value) return
-    if (!pagePlanId.value) return
+    if (!pagePlan.value) return
     plans.data.value
       .filter(p => p.parent === (pagePlan.value?.uuid || null) && p.done && !p.archived)
       .forEach(p => plans.update(p.uuid, { archived: true }))
@@ -166,7 +160,6 @@ export default function useDatabaseHelpers() {
     planDependencies,
     planMap,
     pagePlan,
-    pagePlanId,
     blockers,
     updatePlan,
     archiveDoneChildren,

@@ -111,11 +111,11 @@ const plansGroup = 'plansGroup'
                 totalChildren(item.uuid) ? 'font-bold' : 'font-normal',
                 item.done ? 'line-through' : '',
               ]"
+              class="mr-1"
             >
               <PlansBlockersIcon :plan="item" />
               {{ item.title }}
             </span>
-            <span class="mx-1 text-xs text-slate-400">{{ item.id }}</span>
             <UBadge v-if="unfinishedChildren(item.uuid)" class="mr-1 rounded-full bg-red-200 text-black">
               {{ unfinishedChildren(item.uuid) }}
             </UBadge>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute()
-const { pagePlan, pagePlanId, updatePlan } = useDatabaseHelpers()
+const { pagePlan, updatePlan } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
 const tabs = ['overview', 'tasks', 'tracking', 'budget', 'expenses']
@@ -51,7 +51,7 @@ watch(() => route.params, async () => {
         <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
       </div>
       <!-- <div
-        v-if="pagePlanId"
+        v-if="pagePlan"
         ref="stopwatch"
         class="relative flex size-10 min-w-10 cursor-pointer items-center justify-center rounded-full text-5xl"
       >
@@ -61,15 +61,12 @@ watch(() => route.params, async () => {
     <!-- tab row -->
     <div class="mb-1 flex w-full flex-row items-center">
       <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
-      <span v-if="pagePlan" class="text-sm text-slate-400">
-        {{ pagePlan.id }}
-      </span>
       <NuxtLink
         v-for="tabName in tabs"
         :key="tabName"
         class="-mb-1 ml-1 rounded-t-md border-b-0 border-gray-200 p-1 px-2  dark:border-gray-800 dark:bg-gray-900"
         :class="tabName === route.params.tab || (tabName === tabs[0] && !route.params.tab) ? 'z-20 border-2 bg-white' : 'z-0 border bg-gray-200 dark:bg-gray-900'"
-        :to="{ name: 'projects-id-tab', params: { id: pagePlanId, tab: tabName } }"
+        :to="{ name: 'projects-id-tab', params: { id: pagePlan?.id || null, tab: tabName } }"
       >
         {{ tabName }}
       </NuxtLink>
