@@ -20,6 +20,9 @@ export default defineNuxtConfig({
     port: 7777,
   },
   compatibilityDate: '2024-10-18',
+  nitro: {
+    preset: 'static', // Explicitly tell Nitro to generate static files
+  },
   debug: false,
   eslint: {
     config: {

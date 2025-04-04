@@ -11,6 +11,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "generate-prod": "export $(cat .env.production | xargs) && pnpm run generate",
     "preview": "nuxt preview",
     "lint": "eslint .",
     "lintfix": "eslint . --fix",
