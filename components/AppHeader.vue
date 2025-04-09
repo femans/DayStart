@@ -57,6 +57,9 @@ const topNavLinks = [
         class="absolute right-1 top-1 size-2 bg-green-500"
       />
     </div>
+    <div class="hidden md:flex items-center bg-amber-100 dark:bg-amber-900 px-2 py-1 rounded-md text-xs font-medium italic">
+      <span class="text-amber-800 dark:text-amber-200">Embryonic Pre-Alpha</span>
+    </div>
     <div class="flex items-center">
       <UButton
         v-for="link in topNavLinks"

@@ -14,7 +14,7 @@ subscribe()
 
 <template>
   <UApp>
-    <Title>DayStart.IO</Title>
+    <Title>DayStart.IO (Pre-Alpha)</Title>
     <AppHeader />
     <NuxtPage
       class="mx-auto flex min-w-min max-w-4xl items-center justify-center sm:px-6 lg:px-8"
