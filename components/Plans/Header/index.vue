@@ -18,15 +18,15 @@ watch(() => route.params, async () => {
 <template>
   <div class="relative">
     <!-- Title -->
-    <div class="flex w-full flex-row">
-      <PlansBlockersIcon :plan="pagePlan" class="text-4xl bg-slate-400" />
+    <div class="flex w-full flex-row mb-2">
+      <PlansBlockersIcon v-if="pagePlan" :plan="pagePlan" class="text-4xl bg-slate-400" />
       <textarea
         v-if="pagePlan"
         ref="titleArea"
         v-model="pagePlan!.title"
         :disabled="pagePlan!.archived"
         name="title"
-        class="mr-auto h-auto w-full overflow-hidden text-3xl font-bold"
+        class="mr-auto h-auto w-full overflow-hidden text-3xl font-bold p-1 rounded-xs"
         :class="{
           'italic text-slate-400': pagePlan!.archived,
           'text-slate-900 dark:text-slate-100': !pagePlan!.archived,
@@ -36,7 +36,7 @@ watch(() => route.params, async () => {
         @change="updatePlan({ uuid: pagePlan.uuid, title: ($event.target as HTMLTextAreaElement).value })"
         @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
       />
-      <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold">
+      <h1 v-else class="flex flex-row items-center gap-2 text-3xl font-bold mr-auto">
         <UIcon name="i-heroicons-home" />
         Home
       </h1>
@@ -50,15 +50,8 @@ watch(() => route.params, async () => {
       >
         <UIcon name="i-heroicons-check-20-solid" class="size-8 bg-white" />
       </div>
-      <!-- <div
-        v-if="pagePlan"
-        ref="stopwatch"
-        class="relative flex size-10 min-w-10 cursor-pointer items-center justify-center rounded-full text-5xl"
-      >
-        <UIcon name="i-heroicons-clock" class="size-8 bg-gray-700 stopwatch" />
-      </div> -->
     </div>
-    <!-- tab row -->
+    <!-- tab row - show for all pages -->
     <div class="mb-1 flex w-full flex-row items-center">
       <UIcon v-if="pagePlan?.archived" name="i-heroicons-archive-box" class="mr-2 size-5 text-slate-400" />
       <NuxtLink

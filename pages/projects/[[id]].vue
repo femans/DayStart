@@ -4,6 +4,7 @@ import { PlansBreadCrumbs } from '#components'
 const { pagePlan } = useDatabaseHelpers()
 const route = useRoute()
 
+// Archive panel state is now managed in the Overview component
 const showArchived = ref(false)
 </script>
 
@@ -16,8 +17,6 @@ const showArchived = ref(false)
     <UCard class="w-full overflow-hidden px-6 py-2 my-2">
       <NuxtPage v-if="route.params.tab" />
       <PlansHeaderOverview v-else />
-      <PlansNewInputBox />
-      <PlansList :show-archived="showArchived" />
     </UCard>
     <ArchivePanel :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
   </div>

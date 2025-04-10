@@ -105,7 +105,7 @@ const plansGroup = 'plansGroup'
               @click="archiveRestore(item.uuid)"
             />
           </UTooltip>
-          <NuxtLink :to="{ name: 'projects-id', params: { id: item.id } }">
+          <NuxtLink :to="{ name: 'projects-id-tab', params: { id: item.id, tab: $route.params.tab || 'overview' } }">
             <span
               :class="[
                 totalChildren(item.uuid) ? 'font-bold' : 'font-normal',

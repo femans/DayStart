@@ -67,7 +67,7 @@ const inputList = computed<DepListing[]>({
     :items="menuList"
   >
     <template #tags-item-text="{ item }">
-      <NuxtLink :to="{ name: 'projects-id', params: { id: item.slug } }">
+      <NuxtLink :to="{ name: 'projects-id-tab', params: { id: item.slug, tab: $route.params.tab || 'overview' } }">
         {{ item.label }}
       </NuxtLink>
     </template>
