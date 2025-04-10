@@ -63,11 +63,14 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
         @change="updatePlan({ uuid: pagePlan.uuid, definition_of_done: ($event.target as HTMLTextAreaElement).value })"
         @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
       />
-      <div class="flex flex-row mb-1">
+      <div class="flex flex-row mb-1 items-center">
+        <!-- Documentation URL field -->
+        <PlansDocumentationUrl class="flex-grow" />
+
         <UCheckbox
           v-model="pagePlan.done"
           label="Done"
-          class="ml-auto rounded border border-gray-200 px-1 dark:border-gray-800"
+          class="ml-2 rounded border border-gray-200 px-1 dark:border-gray-800"
           @update:model-value="done => (typeof done === 'boolean') && pagePlan && updatePlan({ uuid: pagePlan.uuid, done })"
         />
         <UCheckbox

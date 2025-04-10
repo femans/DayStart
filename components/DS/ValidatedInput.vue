@@ -10,13 +10,23 @@ const { updatePlan } = useDatabaseHelpers()
 const props = defineProps <{
   plan: Plan
   field: keyof Plan
-  inputType: 'number' | 'text'
+  inputType: 'number' | 'text' | 'url'
 }>()
 
 const input = ref(String(props.plan?.[props.field] ?? ''))
 
+// Validate input based on type
 const validInput = computed(() => {
-  return props.inputType === 'text' || (input.value === undefined || !isNaN(Number(input.value)))
+  if (props.inputType === 'text') return true
+  if (props.inputType === 'number') return input.value === undefined || !isNaN(Number(input.value))
+  if (props.inputType === 'url') {
+    if (!input.value) return true
+    // Trim whitespace before validating
+    const trimmedValue = input.value.trim()
+    // Simple URL validation - doesn't require protocol prefix
+    return /^[\w.-]+\.[a-zA-Z]{2,}(\S*)?$/.test(trimmedValue) || /^https?:\/\//.test(trimmedValue)
+  }
+  return true
 })
 
 const changeHandler = (event: Event) => {
@@ -26,6 +36,7 @@ const changeHandler = (event: Event) => {
     updatePlan({ uuid: props.plan.uuid, [props.field]: value })
   }
 }
+
 watch(() => props.plan, (newPlan) => {
   if (newPlan) {
     input.value = String(newPlan[props.field] || '')
@@ -38,7 +49,7 @@ watch(() => props.plan, (newPlan) => {
     v-if="plan.id !== undefined"
     v-model="input"
     v-bind="$attrs"
-    class="transition-all"
+    class="transition-all w-full"
     :class="{
       'bg-red-300': !validInput,
     }"
