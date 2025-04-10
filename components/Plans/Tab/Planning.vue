@@ -34,7 +34,7 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
 </script>
 
 <template>
-  <PlansHeader tab="planning">
+  <PlansTab tab="planning">
     <template v-if="pagePlan">
       <!-- Dependencies Section -->
       <h3 class="text-lg font-semibold mb-2">
@@ -48,7 +48,7 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
         Progress Tracking
       </h3>
       <UProgress v-model="progress" indicator />
-      <PlansHeaderInput
+      <PlansTabInput
         :label="totalChildren ? 'Total projected manhours' : 'Hours estimated for task'"
         :class="{
           'text-red-500': pagePlan.manhours_required !== null && (pagePlan.manhours_required < calculatedTimeRequired),
@@ -86,5 +86,5 @@ const progress = computed(() => finishedTaskTimeSpent.value / (calculatedTimeReq
         </span>
       </div>
     </template>
-  </PlansHeader>
+  </PlansTab>
 </template>

@@ -49,7 +49,6 @@ watch(() => props.plan, (newPlan) => {
     v-if="plan.id !== undefined"
     v-model="input"
     v-bind="$attrs"
-    class="transition-all w-full"
     :class="{
       'bg-red-300': !validInput,
     }"

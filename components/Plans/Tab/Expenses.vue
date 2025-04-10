@@ -1,7 +1,7 @@
 <template>
-  <PlansHeader>
-    Tracking
-  </PlansHeader>
+  <PlansTab>
+    Expenses
+  </PlansTab>
 </template>
 
 <script lang="ts" setup>

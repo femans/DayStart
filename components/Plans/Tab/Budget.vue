@@ -3,9 +3,9 @@ const { pagePlan } = useDatabaseHelpers()
 </script>
 
 <template>
-  <PlansHeader>
+  <PlansTab>
     <!-- Budget Section -->
-    <PlansHeaderInput
+    <PlansTabInput
       v-if="pagePlan"
       label="Budget:"
       field="budget"
@@ -15,5 +15,5 @@ const { pagePlan } = useDatabaseHelpers()
       }"
       :disabled="pagePlan.archived"
     />
-  </PlansHeader>
+  </PlansTab>
 </template>

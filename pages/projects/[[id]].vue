@@ -16,7 +16,7 @@ const showArchived = ref(false)
     />
     <UCard class="w-full overflow-hidden px-6 py-2 my-2">
       <NuxtPage v-if="route.params.tab" />
-      <PlansHeaderOverview v-else />
+      <PlansTabOverview v-else />
     </UCard>
     <ArchivePanel :show-archived="showArchived" @toggle-show-archived="(value: boolean) => showArchived = value" />
   </div>

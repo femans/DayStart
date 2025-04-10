@@ -127,7 +127,7 @@ function changePriority(item: MovingItem<Plan>) {
 </script>
 
 <template>
-  <PlansHeader tab="tasks">
+  <PlansTab tab="tasks">
     <div class="flex w-full flex-row items-center gap-2 mb-4">
       <h2 class="flex w-full flex-row items-center gap-2 text-xl font-bold">
         <UIcon name="i-heroicons-clipboard-document-list" />
@@ -217,5 +217,5 @@ function changePriority(item: MovingItem<Plan>) {
         </div>
       </div>
     </ArrangeableList>
-  </PlansHeader>
+  </PlansTab>
 </template>

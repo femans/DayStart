@@ -8,7 +8,7 @@ const showArchived = ref(false)
 </script>
 
 <template>
-  <PlansHeader tab="overview">
+  <PlansTab tab="overview">
     <!-- For home page, only show the projects list without any headers or sections -->
     <template v-if="!pagePlan">
       <PlansNewInputBox />
@@ -60,5 +60,5 @@ const showArchived = ref(false)
       <PlansNewInputBox />
       <PlansList :show-archived="showArchived" />
     </template>
-  </PlansHeader>
+  </PlansTab>
 </template>
