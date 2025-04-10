@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlansHeaderOverview, PlansHeaderTasks, PlansHeaderTracking, PlansHeaderBudget, PlansHeaderExpenses } from '#components'
+import { PlansHeaderOverview, PlansHeaderTasks, PlansHeaderTracking, PlansHeaderPlanning, PlansHeaderBudget, PlansHeaderExpenses } from '#components'
 
 // Route and component mapping
 const route = useRoute()
@@ -7,6 +7,7 @@ const componentMap: Record<string, Component> = {
   overview: PlansHeaderOverview,
   tasks: PlansHeaderTasks,
   tracking: PlansHeaderTracking,
+  planning: PlansHeaderPlanning,
   budget: PlansHeaderBudget,
   expenses: PlansHeaderExpenses,
 }
