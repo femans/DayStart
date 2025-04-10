@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase', '@nuxt/ui', '@nuxt/eslint'],
   ssr: false,
   components: [
-    'components/',
+    { path: 'components/' },
     {
       path: 'node_modules/@headlessui/vue', // Path to the Headless UI components
       extensions: ['js', 'ts', 'vue'], // File extensions

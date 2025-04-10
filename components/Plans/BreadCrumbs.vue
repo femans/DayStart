@@ -30,7 +30,7 @@ const currentTab = computed(() => route.params.tab || 'overview')
     <NuxtLink
       v-if="trail.length > 0"
       class="flex items-center"
-      :to="{ name: 'projects-id-tab', params: { id: planMap.get(trail.at(-1)?.parent ?? '')?.id, tab: currentTab } }"
+      :to="{ name: 'projects-id-tab', params: { id: trail.at(-1)?.parent ? (planMap.get(trail.at(-1)?.parent ?? '')?.id || '') : '', tab: currentTab } }"
     >
       <UIcon
         name="i-heroicons-arrow-uturn-left-16-solid"

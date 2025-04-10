@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ArrangeableList, useMovingItem, type MovingItem } from 'vue-arrange'
+import PlansTruncatedBreadcrumbs from '../TruncatedBreadcrumbs.vue'
 import type { Tables } from '~~/types/database.types'
 
 type Plan = Tables<'plans'>
@@ -79,20 +80,31 @@ const getFilteredBreadcrumbs = (taskUuid: string): Plan[] => {
   // Get the full trail of the task
   const fullTrail = getTrail(taskUuid)
 
-  // If we're on the home page or there's no current project, return all breadcrumbs except the task itself
+  // Always remove the last item (the task itself)
+  const trailWithoutTask = fullTrail.slice(0, -1)
+
+  // If we're on the home page or there's no current project, return all breadcrumbs
   if (!pagePlan.value) {
-    return fullTrail.slice(0, -1) // Remove the last item (the task itself)
+    return trailWithoutTask
   }
 
   // Find the index of the current project in the trail
-  // Use optional chaining to handle null case
-  const currentProjectIndex = fullTrail.findIndex(crumb => crumb.uuid === pagePlan.value?.uuid)
+  const currentProjectIndex = trailWithoutTask.findIndex(crumb => crumb.uuid === pagePlan.value?.uuid)
 
-  // If the current project is not in the trail, return an empty array
-  if (currentProjectIndex === -1) return []
+  // If the current project is not in the trail, return the full trail without the task
+  // This ensures we always show breadcrumbs
+  if (currentProjectIndex === -1) return trailWithoutTask
 
-  // Return only the breadcrumbs after the current project, excluding the task itself
-  return fullTrail.slice(currentProjectIndex + 1, -1)
+  // Return only the breadcrumbs after the current project
+  return trailWithoutTask.slice(currentProjectIndex + 1)
+}
+
+// Create a function to get filtered breadcrumbs for an item
+// This helps avoid calling getFilteredBreadcrumbs multiple times for the same item
+const getItemBreadcrumbs = (itemUuid: string) => {
+  // Cache the result to avoid recalculating it
+  const breadcrumbs = getFilteredBreadcrumbs(itemUuid)
+  return breadcrumbs
 }
 
 const checkDone = async (p: Plan) => {
@@ -164,11 +176,11 @@ function changePriority(item: MovingItem<Plan>) {
         >
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
           <PlansBlockersIcon :plan="item" />
-          <!-- Store the result in a variable to avoid calling the function multiple times -->
-          <template v-if="getFilteredBreadcrumbs(item.uuid).length > 0">
+          <!-- Only show breadcrumbs if there are any -->
+          <template v-if="getItemBreadcrumbs(item.uuid).length > 0">
             <!-- Only show breadcrumbs that are descendants of the current project -->
             <PlansTruncatedBreadcrumbs
-              :breadcrumbs="getFilteredBreadcrumbs(item.uuid)"
+              :breadcrumbs="getItemBreadcrumbs(item.uuid)"
             />
             <!-- Arrow between breadcrumbs and item -->
             <UIcon
