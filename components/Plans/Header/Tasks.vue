@@ -92,7 +92,7 @@ const getFilteredBreadcrumbs = (taskUuid: string): Plan[] => {
   if (currentProjectIndex === -1) return []
 
   // Return only the breadcrumbs after the current project, excluding the task itself
-  return fullTrail.slice(currentProjectIndex + 1)
+  return fullTrail.slice(currentProjectIndex + 1, -1)
 }
 
 const checkDone = async (p: Plan) => {
@@ -164,7 +164,7 @@ function changePriority(item: MovingItem<Plan>) {
         >
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
           <PlansBlockersIcon :plan="item" />
-          <!-- Use a computed property to avoid calling the function multiple times -->
+          <!-- Store the result in a variable to avoid calling the function multiple times -->
           <template v-if="getFilteredBreadcrumbs(item.uuid).length > 0">
             <!-- Only show breadcrumbs that are descendants of the current project -->
             <PlansTruncatedBreadcrumbs
