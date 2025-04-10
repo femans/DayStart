@@ -55,7 +55,7 @@ const showArchived = ref(false)
       <!-- Subprojects Section -->
       <USeparator />
       <h3 class="text-lg font-semibold my-2">
-        Subprojects & Tasks
+        Project Subdivision
       </h3>
       <PlansNewInputBox />
       <PlansList :show-archived="showArchived" />

@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { PlansTabOverview, PlansTabTasks, PlansTabTracking, PlansTabPlanning, PlansTabBudget, PlansTabExpenses } from '#components'
+import { PlansTabOverview, PlansTabTasks, PlansTabPlanning, PlansTabBudget } from '#components'
 
 // Route and component mapping
 const route = useRoute()
 const componentMap: Record<string, Component> = {
   overview: PlansTabOverview,
   tasks: PlansTabTasks,
-  tracking: PlansTabTracking,
   planning: PlansTabPlanning,
   budget: PlansTabBudget,
-  expenses: PlansTabExpenses,
 }
 </script>
 

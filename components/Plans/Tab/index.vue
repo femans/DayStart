@@ -3,7 +3,7 @@ const route = useRoute()
 const { pagePlan, updatePlan } = useDatabaseHelpers()
 const { finishedChildren, unfinishedChildren } = usePlanList()
 
-const tabs = ['overview', 'tasks', 'tracking', 'planning', 'budget', 'expenses']
+const tabs = ['overview', 'tasks', 'planning', 'budget']
 const titleArea = ref<HTMLElement | null>(null)
 
 watch(() => route.params, async () => {
