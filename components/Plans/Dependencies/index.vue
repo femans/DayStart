@@ -57,22 +57,27 @@ const inputList = computed<DepListing[]>({
 </script>
 
 <template>
-  <span>Blockers:</span>
-  <UInputMenu
-    v-model="inputList"
-    class="w-full dark:border-green-400"
-    size="xl"
-    variant="outline"
-    multiple
-    :items="menuList"
-  >
-    <template #tags-item-text="{ item }">
-      <NuxtLink :to="{ name: 'projects-id-tab', params: { id: item.slug, tab: $route.params.tab || 'overview' } }">
-        {{ item.label }}
-      </NuxtLink>
-    </template>
-    <template #item-label="{ item }">
-      {{ item.label }}
-    </template>
-  </UInputMenu>
+  <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
+    <span class="whitespace-nowrap font-medium">Blockers:</span>
+    <UInputMenu
+      v-model="inputList"
+      class="w-full dark:border-green-400"
+      size="lg"
+      variant="outline"
+      multiple
+      :items="menuList"
+    >
+      <template #tags-item-text="{ item }">
+        <NuxtLink
+          :to="{ name: 'projects-id-tab', params: { id: item.slug, tab: $route.params.tab || 'overview' } }"
+          class="truncate max-w-[150px] sm:max-w-[200px] md:max-w-full"
+        >
+          {{ item.label }}
+        </NuxtLink>
+      </template>
+      <template #item-label="{ item }">
+        <span class="truncate block">{{ item.label }}</span>
+      </template>
+    </UInputMenu>
+  </div>
 </template>

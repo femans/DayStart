@@ -38,7 +38,7 @@ const finishedChildren = computed(() =>
     group="plansGroup"
   >
     <UCard
-      class="m-2 flex w-auto flex-col items-center rounded-lg bg-sky-50 transition-all hover:bg-sky-100"
+      class="m-1 sm:m-2 flex w-auto flex-col items-center rounded-lg bg-sky-50 transition-all hover:bg-sky-100 p-1 sm:p-4"
       :class="{
         'border-red-500': movingItem?.payload.archived,
         'border-gray-300': !movingItem?.payload.archived,
@@ -48,29 +48,28 @@ const finishedChildren = computed(() =>
       <!-- flex div needed because ucard renders an internal div, so flex class does not work otherwise -->
       <div class="flex flex-col items-center">
         <span
-          class="m-1 flex select-none transition-all"
+          class="m-0.5 sm:m-1 flex select-none transition-all text-xs sm:text-sm"
           :class="{
             'text-red-500': isHovering && movingItem?.payload.archived,
           }"
-          size="xs"
         >
-          {{ movingItem?.payload.archived ? 'Drop here to DELETE forever' : (movingItem ? 'Drop here to archive' : `Archive: ${pagePlanArchivedChildrenCount || 'empty'}`) }}
+          {{ movingItem?.payload.archived ? 'Drop to DELETE' : (movingItem ? 'Drop to archive' : `Archive: ${pagePlanArchivedChildrenCount || 'empty'}`) }}
         </span>
-        <span v-if="movingItem?.payload.archived && plans.data.value.some(p => p.parent_id === movingItem?.payload.id)" class="flex items-center text-sm">
-          <UIcon name="i-heroicons-information-circle" />
-          This item can not be deleted, because it has dependencies
+        <span v-if="movingItem?.payload.archived && plans.data.value.some(p => p.parent_id === movingItem?.payload.id)" class="flex items-center text-xs sm:text-sm">
+          <UIcon name="i-heroicons-information-circle" class="mr-0.5" />
+          Has dependencies
         </span>
-        <span v-else-if="movingItem?.payload.archived" class="flex items-center text-sm text-red-500">
-          <UIcon name="i-heroicons-exclamation-triangle" />
-          This action is irreversible
+        <span v-else-if="movingItem?.payload.archived" class="flex items-center text-xs sm:text-sm text-red-500">
+          <UIcon name="i-heroicons-exclamation-triangle" class="mr-0.5" />
+          Irreversible
         </span>
         <UTooltip :prevent="isHovering" text="Toggle to show archived items">
           <div class="flex items-center">
             <UIcon
-              class="transition-all "
+              class="transition-all"
               :class="{
-                'size-16': isHovering,
-                'size-12': !isHovering,
+                'size-12 sm:size-16': isHovering,
+                'size-8 sm:size-12': !isHovering,
                 'text-red-500': isHovering && movingItem?.payload.archived,
                 'text-gray-400': !isHovering || !movingItem?.payload.archived,
               }"
@@ -87,12 +86,12 @@ const finishedChildren = computed(() =>
         </UTooltip>
         <UButton
           v-if="finishedChildren"
-          class="ml-auto hover:text-red-500 hover:ring-red-400"
+          class="ml-auto hover:text-red-500 hover:ring-red-400 text-xs sm:text-sm mt-1"
           variant="solid"
           size="xs"
           @click="archiveDoneChildren"
         >
-          Archive all done tasks/projects
+          Archive done items
         </UButton>
       </div>
     </UCard>

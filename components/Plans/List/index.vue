@@ -1,8 +1,22 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+
 const { pagePlan } = useDatabaseHelpers()
 const { totalChildren } = usePlanList()
 
-const columns = [
+// Define column widths
+const isMobile = ref(false)
+
+// Check screen size on client side only
+onMounted(() => {
+  isMobile.value = window.innerWidth < 640
+  window.addEventListener('resize', () => {
+    isMobile.value = window.innerWidth < 640
+  })
+})
+
+// Use responsive column widths based on screen size
+const columns = computed(() => [
   {
     width: 64,
     title: 'Budget',
@@ -15,7 +29,7 @@ const columns = [
     width: 48,
     title: 'Done?',
   },
-]
+])
 
 defineProps<{
   showArchived: boolean

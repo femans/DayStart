@@ -128,14 +128,15 @@ function changePriority(item: MovingItem<Plan>) {
 
 <template>
   <PlansTab tab="tasks">
-    <div class="flex w-full flex-row items-center gap-2 mb-4">
-      <h2 class="flex w-full flex-row items-center gap-2 text-xl font-bold">
+    <div class="flex w-full flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
+      <h2 class="flex w-full flex-row items-center gap-2 text-lg sm:text-xl font-bold">
         <UIcon name="i-heroicons-clipboard-document-list" />
         {{ pagePlan ? 'Project Tasks' : 'All Tasks' }}
       </h2>
       <UButton
         size="sm"
         color="neutral"
+        class="self-end sm:self-auto"
         @click="showDone = !showDone"
       >
         {{ showDone ? 'Show To Do' : 'Show Done' }}
@@ -168,10 +169,10 @@ function changePriority(item: MovingItem<Plan>) {
       }"
       @drop-item="changePriority"
     >
-      <div class="flex w-full flex-row py-1">
+      <div class="flex w-full flex-row py-1 border-b border-gray-100 dark:border-gray-800">
         <!-- handle and title -->
         <div
-          class="mr-auto flex select-none items-center font-medium overflow-hidden max-w-[calc(100%-80px)]"
+          class="mr-auto flex select-none items-center font-medium overflow-hidden pr-2"
           :class="[item.done ? 'line-through' : '', item.archived ? 'text-gray-400' : 'text-gray-700']"
         >
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
@@ -179,39 +180,42 @@ function changePriority(item: MovingItem<Plan>) {
           <!-- Only show breadcrumbs if there are any -->
           <template v-if="getItemBreadcrumbs(item.uuid).length > 0">
             <!-- Only show breadcrumbs that are descendants of the current project -->
-            <PlansTruncatedBreadcrumbs
-              :breadcrumbs="getItemBreadcrumbs(item.uuid)"
-            />
-            <!-- Arrow between breadcrumbs and item -->
-            <UIcon
-              name="i-heroicons-arrow-right-16-solid"
-              class="mx-1"
-            />
+            <div class="hidden sm:block">
+              <PlansTruncatedBreadcrumbs
+                :breadcrumbs="getItemBreadcrumbs(item.uuid)"
+              />
+              <!-- Arrow between breadcrumbs and item -->
+              <UIcon
+                name="i-heroicons-arrow-right-16-solid"
+                class="mx-1"
+              />
+            </div>
           </template>
           <NuxtLink
             :to="{ name: 'projects-id-tab', params: { id: item.id, tab: route.params.tab || 'overview' } }"
-            class="truncate max-w-64"
+            class="inline-block"
             :class="{
               'italic text-slate-400 dark:text-slate-600': item.archived,
               'text-slate-700 dark:text-slate-200': !item.archived,
             }"
+            @touchstart.prevent="$router.push({ name: 'projects-id-tab', params: { id: item.id, tab: route.params.tab || 'overview' } })"
           >
-            {{ item.title }}
+            <span class="break-normal">{{ item.title }}</span>
           </NuxtLink>
         </div>
         <!-- details -->
-        <div v-if="!isMoving(item)" class="flex flex-row">
+        <div v-if="!isMoving(item)" class="flex flex-row items-center">
           <DSValidatedInput
-            class="mb-1 mr-2 w-8 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
+            class="w-16 border-b border-solid border-gray-300 px-1 text-right text-sm outline-none"
             field="manhours_required"
             input-type="number"
             :plan="item"
             :placeholder="placeholder(item, 'manhours_required')"
           />
-          <div class="flex w-10 justify-center">
+          <div class="flex justify-center w-12">
             <UCheckbox
               v-model="item.done"
-              @click="checkDone(item)"
+              @touchstart.stop.prevent="checkDone(item)"
             />
           </div>
         </div>

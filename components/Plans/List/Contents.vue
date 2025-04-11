@@ -77,16 +77,19 @@ const plansGroup = 'plansGroup'
   >
     <Disclosure v-slot="{ open }" ref="disclosures">
       <div
-        class="flex w-full flex-row items-center"
+        class="flex w-full flex-row items-center py-1"
         :class="[
           item.archived ? 'italic text-slate-400 dark:text-slate-600' : 'text-slate-700 dark:text-slate-200',
         ]"
       >
         <div
-          class="mr-auto flex select-none items-center font-medium"
+          class="mr-auto flex select-none items-center font-medium overflow-hidden pr-2"
         >
           <UIcon name="i-heroicons-ellipsis-vertical" class="cursor-grab" data-handle />
-          <DisclosureButton class="flex cursor-pointer">
+          <DisclosureButton
+            class="flex cursor-pointer"
+            @touchstart.stop="$event.currentTarget.click()"
+          >
             <UIcon
               :name="open ? 'i-heroicons-chevron-down-16-solid' : 'i-heroicons-chevron-right-16-solid'"
               class="self-center"
@@ -105,13 +108,17 @@ const plansGroup = 'plansGroup'
               @click="archiveRestore(item.uuid)"
             />
           </UTooltip>
-          <NuxtLink :to="{ name: 'projects-id-tab', params: { id: item.id, tab: $route.params.tab || 'overview' } }">
+          <NuxtLink
+            :to="{ name: 'projects-id-tab', params: { id: item.id, tab: $route.params.tab || 'overview' } }"
+            class="inline-block"
+            @touchstart.prevent="$router.push({ name: 'projects-id-tab', params: { id: item.id, tab: $route.params.tab || 'overview' } })"
+          >
             <span
               :class="[
                 totalChildren(item.uuid) ? 'font-bold' : 'font-normal',
                 item.done ? 'line-through' : '',
               ]"
-              class="mr-1"
+              class="mr-1 break-normal"
             >
               <PlansBlockersIcon :plan="item" />
               {{ item.title }}
@@ -119,9 +126,9 @@ const plansGroup = 'plansGroup'
           </NuxtLink>
         </div>
         <div v-if="!isMoving(item)" class="flex flex-row items-center">
+          <!-- Budget input -->
           <DSValidatedInput
-            :style="{ width: `${columns[0].width - 8}px` }"
-            class="mb-1 border-b px-1 mx-1 text-right text-sm outline-none "
+            class="w-16 border-b px-1 text-right text-sm outline-none"
             :class="{
               'border-b-4 border-double border-gray-500 dark:border-gray-300': open && totalChildren(item.uuid),
               'border-solid border-gray-300 dark:border-gray-700': !open,
@@ -132,9 +139,10 @@ const plansGroup = 'plansGroup'
             :plan="item"
             :placeholder="placeholder(item, 'budget')"
           />
+
+          <!-- Hours input -->
           <DSValidatedInput
-            :style="{ width: `${columns[1].width - 8}px` }"
-            class="mb-1 border-b px-1 mx-1 text-right text-sm outline-none "
+            class="w-16 border-b px-1 text-right text-sm outline-none"
             :class="{
               'border-b-4 border-double border-gray-500 dark:border-gray-300': open && totalChildren(item.uuid),
               'border-solid border-gray-300 dark:border-gray-700': !open,
@@ -145,9 +153,10 @@ const plansGroup = 'plansGroup'
             :plan="item"
             :placeholder="placeholder(item, 'manhours_required')"
           />
+
+          <!-- Done checkbox/switch -->
           <div
-            class="flex justify-center self-center"
-            :style="{ width: `${columns[2].width}px` }"
+            class="flex justify-center self-center w-12"
           >
             <USwitch
               v-if="totalChildren(item.uuid)"
@@ -161,12 +170,12 @@ const plansGroup = 'plansGroup'
               :color="
                 (unfinishedChildren(item.uuid) && item.done && !item.archived) ? 'error' : (!item.archived && item.done ? 'primary' : 'neutral')
               "
-              @click="completePlan(item)"
+              @touchstart.stop.prevent="completePlan(item)"
             />
             <UCheckbox
               v-else
               v-model="item.done"
-              @click="completePlan(item)"
+              @touchstart.stop.prevent="completePlan(item)"
             />
           </div>
         </div>
@@ -174,7 +183,7 @@ const plansGroup = 'plansGroup'
       <DisclosurePanel class="w-full">
         <PlansListContents
           :plan-uuid="item.uuid"
-          class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-1 dark:border-gray-300"
+          class="ml-6 min-h-3 rounded-l border-y border-l border-gray-400 pl-0 dark:border-gray-300"
           :show-archived="showArchived"
           :columns="columns"
         />

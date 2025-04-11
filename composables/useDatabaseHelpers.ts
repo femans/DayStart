@@ -31,7 +31,10 @@ export default function useDatabaseHelpers() {
       if (!user.value) return
       if (update.uuid === undefined) return
       await plans.update(update.uuid, update).then(
-        () => console.log(`Plan ${pagePlan.value!.id} updated with ${JSON.stringify(update)}`),
+        () => {
+          const planId = plans.data.value.find(p => p.uuid === update.uuid)?.id || 'unknown'
+          console.log(`Plan ${planId} updated with ${JSON.stringify(update)}`)
+        },
         error => console.error('Error updating plan:', error),
       )
         .catch(error => console.error('Error caught updating plan:', error))

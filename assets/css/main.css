@@ -1,2 +1,21 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* Make input fields more tappable on mobile */
+@media (max-width: 640px) {
+  input[type="number"], input[type="text"], input[type="url"] {
+    min-height: 36px;
+    padding: 4px 8px;
+  }
+
+  /* Fix for touch events */
+  .u-switch, .u-checkbox {
+    touch-action: manipulation;
+  }
+
+  /* Increase tap target size */
+  .u-switch, .u-checkbox {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}

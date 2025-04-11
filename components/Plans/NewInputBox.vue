@@ -38,28 +38,26 @@ async function addPlan() {
 </script>
 
 <template>
-  <form v-if="!pagePlan?.archived" class="my-2 flex w-full gap-2" @submit.prevent="addPlan">
+  <form v-if="!pagePlan?.archived" class="my-1 sm:my-2 flex w-full gap-1 sm:gap-2" @submit.prevent="addPlan">
     <UInput
       v-model="newPlan"
       :loading="loading"
       class="w-full dark:border-green-400"
-      size="xl"
+      size="sm"
       variant="outline"
       type="text"
       name="newPlan"
-      placeholder="Type something here to make a new task/subproject."
-      autofocus
+      placeholder="Type something here to make a new task/subproject"
       autocomplete="off"
     />
-    <UTooltip
-      text="Add new task/subproject"
-      col
-      :shortcuts="['⤶']"
-      :popper="{ arrow: true }"
+    <UButton
+      type="submit"
+      variant="outline"
+      size="sm"
+      color="primary"
+      class="flex-shrink-0"
     >
-      <UButton type="submit" variant="outline">
-        Add
-      </UButton>
-    </UTooltip>
+      Add
+    </UButton>
   </form>
 </template>

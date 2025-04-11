@@ -30,7 +30,7 @@ const validInput = computed(() => {
 })
 
 const changeHandler = (event: Event) => {
-  if (validInput.value) {
+  if (validInput.value && props.plan?.uuid) {
     let value: string | null = (event.target as HTMLInputElement).value
     if (value === '' && props.inputType === 'number') value = null
     updatePlan({ uuid: props.plan.uuid, [props.field]: value })
@@ -54,5 +54,6 @@ watch(() => props.plan, (newPlan) => {
     }"
     @change="changeHandler"
     @keydown.enter="(event) => (event.target as HTMLInputElement).blur()"
+    @touchstart="($event.target as HTMLInputElement).focus()"
   >
 </template>
